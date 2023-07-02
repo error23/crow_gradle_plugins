@@ -1,0 +1,26 @@
+plugins {
+	id 'org.jetbrains.kotlin.jvm' version "$kotlinVersion"
+	id "org.gradle.kotlin.kotlin-dsl" version "$kotlinDslVersion"
+	id 'com.gradle.plugin-publish' version "$gradlePluginPublishVersion"
+}
+
+gradlePlugin {
+	website.set(projectUrl)
+	vcsUrl.set(projectUrl)
+	plugins {
+		gettextBase {
+			id = "${group}.gettextBase"
+			implementationClass = "${group}.gettext.GetTextBasePlugin"
+			displayName = 'Base GNU gettext plugin for java and kotlin projects'
+			description = "GNU gettext base plugin"
+			tags.addAll("gettext", "i18n", "gettext", "gettext-commons", "DSL")
+		}
+		gettext {
+			id = "${group}.gettext"
+			implementationClass = "${group}.gettext.GetTextPlugin"
+			displayName = 'GNU gettext plugin for java and kotlin projects'
+			description = "GNU gettext plugin"
+			tags.addAll("gettext", "i18n", "gettext", "gettext-commons", "DSL")
+		}
+	}
+}
