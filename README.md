@@ -1,4 +1,4 @@
-# crow_gradle_plugins
+# crow gradle plugins
 
 Some gradle plugins implementation
 
