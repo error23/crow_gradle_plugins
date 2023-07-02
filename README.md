@@ -18,7 +18,8 @@ plugins {
 
 ### Advanced usage :
 
-If you need to customize some plugin settings you can use following configuration
+If you need to customize some plugin settings you can use following extension
+All values presented here are default values set by plugin but in case you need to change some configuration here is complete descrption of the extension
 
 ```groovy
 /*
