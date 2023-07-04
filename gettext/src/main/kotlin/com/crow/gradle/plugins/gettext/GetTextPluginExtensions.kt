@@ -96,7 +96,6 @@ open class GetTextMsgFmtTaskExtension @Inject constructor(objects: ObjectFactory
         executableArgs.convention(setOf(
           "--java2",
           "-c",
-          "-C",
           "-f"
         ))
     }
