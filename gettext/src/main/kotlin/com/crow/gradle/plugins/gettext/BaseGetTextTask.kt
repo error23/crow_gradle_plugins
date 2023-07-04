@@ -65,6 +65,7 @@ abstract class BaseGetTextTask : DefaultTask() {
 
         val updated = readText(Charset.forName(encoding.get()))
           .replaceFirst(".*POT-Creation-Date:.*".toRegex(), date.replace("\\", "\\\\"))
+          .replaceFirst("\"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\\n\"", "\"Plural-Forms: nplurals=2; plural=(n > 1);\\n\"")
 
         writeText(updated, Charset.forName(encoding.get()))
     }
