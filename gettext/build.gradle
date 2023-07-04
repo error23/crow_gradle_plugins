@@ -21,7 +21,7 @@ gradlePlugin {
 			implementationClass = "${group}.gettext.GetTextPlugin"
 			displayName = 'GNU gettext plugin for java and kotlin projects'
 			description = "GNU gettext plugin"
-			tags.addAll("gettext", "i18n", "gettext", "gettext-commons", "DSL")
+			tags.addAll("gettext", "i18n", "gettext-commons", "DSL")
 		}
 	}
 }
