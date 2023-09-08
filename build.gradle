@@ -9,22 +9,31 @@ subprojects {
 
 	apply plugin: 'maven-publish'
 
-	plugins.withId('java') {
-		sourceCompatibility = JavaLanguageVersion.of(javaVersion)
-		targetCompatibility = JavaLanguageVersion.of(javaVersion)
-		encoding = "$encoding"
-	}
-	plugins.withId('kotlin') {
+	pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {
 		kotlin {
 			jvmToolchain {
-				languageVersion.set(JavaLanguageVersion.of(javaVersion))
+				languageVersion = JavaLanguageVersion.of(javaVersion)
 			}
 		}
 	}
+
+	pluginManager.withPlugin("java") {
+		java {
+			sourceCompatibility = JavaLanguageVersion.of(javaVersion)
+			targetCompatibility = JavaLanguageVersion.of(javaVersion)
+			encoding = "$encoding"
+		}
+	}
+
 	tasks.withType(JavaCompile).configureEach { t ->
 		t.options.encoding = "$encoding"
 	}
+
 	tasks.withType(Javadoc).configureEach { t ->
 		t.options.encoding = "$encoding"
 	}
+}
+
+wrapper {
+	distributionType = Wrapper.DistributionType.ALL
 }

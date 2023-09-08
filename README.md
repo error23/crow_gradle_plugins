@@ -138,7 +138,6 @@ getText {
 		executableArgs.set([
 				"--java2",
 				"-c",
-				"-C",
 				"-f"])
 
 		/** If set than global encoding for the plugin is ignored in msgFmtTask */
