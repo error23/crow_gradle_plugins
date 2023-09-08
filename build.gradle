@@ -7,8 +7,6 @@ allprojects {
 
 subprojects {
 
-	apply plugin: 'maven-publish'
-
 	pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {
 		kotlin {
 			jvmToolchain {
@@ -22,6 +20,22 @@ subprojects {
 			sourceCompatibility = JavaLanguageVersion.of(javaVersion)
 			targetCompatibility = JavaLanguageVersion.of(javaVersion)
 			encoding = "$encoding"
+		}
+	}
+
+	pluginManager.withPlugin("com.gradle.plugin-publish") {
+		publishing {
+			repositories {
+				maven {
+					name = "GitHubPackages"
+					url = uri("https://maven.pkg.github.com/$developerName/$project.name")
+					println project.name
+					credentials {
+						username = project.findProperty("developerName") ?: System.getenv("GITHUB_USERNAME")
+						password = project.findProperty("developerPassword") ?: System.getenv("GITHUB_TOKEN")
+					}
+				}
+			}
 		}
 	}
 

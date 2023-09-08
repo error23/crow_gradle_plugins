@@ -1,3 +1,2 @@
 rootProject.name = 'crow_gradle_plugins'
 include 'gettext'
-
