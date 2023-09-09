@@ -25,7 +25,12 @@ jobs:
       # Build gradle
       - run:
           name: Build
-          command: ./gradlew clean build -P version=${CIRCLE_TAG}
+          command: |
+            if [ -z "${CIRCLE_TAG}" ]; then
+              ./gradlew clean build
+            else
+              ./gradlew clean build -P version=${CIRCLE_TAG}
+            fi
 
       - run:
           name: Save test results
