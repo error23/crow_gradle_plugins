@@ -25,7 +25,7 @@ jobs:
       # Build gradle
       - run:
           name: Build
-          command: ./gradlew clean build
+          command: ./gradlew clean build -P version=${CIRCLE_TAG}
 
       - run:
           name: Save test results
