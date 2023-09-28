@@ -161,6 +161,8 @@ getTextConfig {
 		/** Override of general plugin target bundle setting. */
 		targetBundle = "${project.group}.${project.name}.i18n.Messages"
 
+		/** If true, check if all strings are translated and fail if not. */
+		checkTranslated = true
 	}
 
 	/**
