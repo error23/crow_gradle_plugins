@@ -7,6 +7,9 @@ allprojects {
 
 subprojects {
 
+	apply plugin: 'base'
+	apply plugin: 'maven-publish'
+
 	pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {
 		kotlin {
 			jvmToolchain {
@@ -45,6 +48,11 @@ subprojects {
 	tasks.withType(Javadoc).configureEach { t ->
 		t.options.encoding = "$encoding"
 	}
+
+	tasks.named("build").configure {
+		dependsOn("publishToMavenLocal")
+	}
+
 }
 
 wrapper {

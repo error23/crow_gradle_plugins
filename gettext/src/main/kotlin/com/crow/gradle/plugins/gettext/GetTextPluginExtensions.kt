@@ -6,6 +6,8 @@ import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.Property
+import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Nested
 import org.gradle.kotlin.dsl.property
 import org.gradle.kotlin.dsl.setProperty
@@ -27,17 +29,26 @@ open class GetTextBaseExtension @Inject constructor(objects: ObjectFactory) {
 
 }
 
-/** GetTextTask extension used to configure getText task. */
+/** GetTextTask extension used to configure [GetTextTask] task. */
 open class GetTextGetTextTaskExtension @Inject constructor(objects: ObjectFactory, project: Project)
     : GetTextBaseExtension(objects) {
 
     /** Set of -k keywords to be used to extract translatable strings. */
-    val keywords = objects.setProperty<String>().convention(setOf("trc:lc,2", "trnc:lc,2,3", "tr", "mrktr", "trn:1,2"))
+    val keywords: SetProperty<String> = objects.setProperty<String>().convention(setOf(
+      "trc:lc,2",
+      "trnc:lc,2,3",
+      "tr",
+      "mrktr",
+      "trn:1,2"
+    ))
 
     /** Set of source files to extract translatable strings from. */
-    val sourceFiles = objects.fileCollection().from(project.layout.projectDirectory.dir("src/main/java").asFileTree.matching() { include("**/*.java") })
+    val sourceFiles = objects.fileCollection().from(project.layout.projectDirectory.dir("src/main/java").asFileTree.matching { include("**/*.java") })
 
-    /** Generated .pot file with extracted translatable strings. */
+    /**
+     * Override of general plugin setting for generated .pot file with
+     * extracted translatable strings.
+     */
     val potFile = objects.fileProperty().convention(project.layout.projectDirectory.file("src/main/resources/i18n/keys.pot"))
 
     init {
@@ -56,14 +67,17 @@ open class GetTextGetTextTaskExtension @Inject constructor(objects: ObjectFactor
     }
 }
 
-/** GetTextTask extension used to configure msgMerge task. */
+/** GetTextTask extension used to configure [MsgMergeTask] task. */
 open class GetTextMsgMergeTaskExtension @Inject constructor(objects: ObjectFactory, project: Project)
     : GetTextBaseExtension(objects) {
 
-    /** keys.pot file with extracted translatable strings */
+    /**
+     * Override of general plugin setting for generated .pot file with
+     * extracted translatable strings.
+     */
     val potFile = objects.fileProperty().convention(project.layout.projectDirectory.file("src/main/resources/i18n/keys.pot"))
 
-    /** Directory containing lc.po files. */
+    /** Override of general plugin i18n Directory containing lc.po files. */
     val i18nDirectory = objects.directoryProperty().convention(project.layout.projectDirectory.dir("src/main/resources/i18n"))
 
     init {
@@ -77,18 +91,21 @@ open class GetTextMsgMergeTaskExtension @Inject constructor(objects: ObjectFacto
     }
 }
 
-/** GetTextTask extension used to configure msgFmt task. */
+/** GetTextTask extension used to configure [MsgFmtTask] task. */
 open class GetTextMsgFmtTaskExtension @Inject constructor(objects: ObjectFactory, project: Project)
     : GetTextBaseExtension(objects) {
 
     /** Set of po files to generate java bundle from. */
-    val poFiles: ConfigurableFileCollection = objects.fileCollection().from(project.layout.projectDirectory.dir("src/main/resources/i18n").asFileTree.matching() { include("**/*.po") })
+    val poFiles: ConfigurableFileCollection = objects.fileCollection().from(project.layout.projectDirectory.dir("src/main/resources/i18n").asFileTree.matching { include("**/*.po") })
 
     /** Output directory for generated java bundle. */
     val outputDirectory = objects.directoryProperty().convention(project.layout.buildDirectory.dir("classes/java/main"))
 
-    /** Target bundle name. */
+    /** Override of general plugin target bundle setting. */
     val targetBundle = objects.property<String>().convention(project.group.toString() + "." + project.name + ".i18n.Messages")
+
+    /** If true, check if all strings are translated and fail if not. */
+    val checkTranslated: Property<Boolean> = objects.property<Boolean>().convention(false)
 
     init {
         description.convention("Generate java bundle resources and classes from po files.")
@@ -101,11 +118,11 @@ open class GetTextMsgFmtTaskExtension @Inject constructor(objects: ObjectFactory
     }
 }
 
-/** GetTextTask extension used to configure property task. */
+/** GetTextTask extension used to configure [GetTextPropertyTask]. */
 open class GetTextPropertyTaskExtension @Inject constructor(objects: ObjectFactory, project: Project)
     : GetTextBaseExtension(objects) {
 
-    /** Target bundle name to generate properties. */
+    /** Override of general plugin target bundle setting. */
     val targetBundle = objects.property<String>().convention(project.group.toString() + "." + project.name + ".i18n.Messages")
 
     /** Generated properties configuration file. */
@@ -120,7 +137,7 @@ open class GetTextPropertyTaskExtension @Inject constructor(objects: ObjectFacto
 }
 
 /** Global GetText plugin extension. */
-open class GetTextExtension @Inject constructor(objects: ObjectFactory, project: Project) {
+abstract class GetTextExtension @Inject constructor(objects: ObjectFactory, project: Project) {
 
     /**
      * Global file encoding configuration, can be overridden by each task
@@ -162,20 +179,20 @@ open class GetTextExtension @Inject constructor(objects: ObjectFactory, project:
     val targetBundle = objects.property<String>().convention(project.group.toString() + "." + project.name + ".i18n.Messages")
 
     /** [GetTextTask] specific configuration. */
-    @Nested
-    val getTextTask = GetTextGetTextTaskExtension(objects, project)
+    @get:Nested
+    abstract val getTextTask: GetTextGetTextTaskExtension
 
     /** [MsgMergeTask] specific configuration. */
-    @Nested
-    val msgMergeTask = GetTextMsgMergeTaskExtension(objects, project)
+    @get:Nested
+    abstract val msgMergeTask: GetTextMsgMergeTaskExtension
 
     /** [MsgFmtTask] specific configuration. */
-    @Nested
-    val msgFmtTask = GetTextMsgFmtTaskExtension(objects, project)
+    @get:Nested
+    abstract val msgFmtTask: GetTextMsgFmtTaskExtension
 
     /** [GetTextPropertyTask] specific configuration. */
-    @Nested
-    val generateI18nProperties = GetTextPropertyTaskExtension(objects, project)
+    @get:Nested
+    abstract val getTextPropertyTask: GetTextPropertyTaskExtension
 
     fun getTextTask(action: Action<in GetTextGetTextTaskExtension>) {
         action.execute(getTextTask)
@@ -189,8 +206,8 @@ open class GetTextExtension @Inject constructor(objects: ObjectFactory, project:
         action.execute(msgFmtTask)
     }
 
-    fun generateI18nProperties(action: Action<in GetTextPropertyTaskExtension>) {
-        action.execute(generateI18nProperties)
+    fun getTextPropertyTask(action: Action<in GetTextPropertyTaskExtension>) {
+        action.execute(getTextPropertyTask)
     }
 
 }

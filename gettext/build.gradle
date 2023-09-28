@@ -7,8 +7,8 @@ gradlePlugin {
 	website.set(projectUrl)
 	vcsUrl.set(projectUrl)
 	plugins {
-		gettextBase {
-			id = "${group}.gettextBase"
+		'gettext-base' {
+			id = "${group}.gettext-base"
 			implementationClass = "${group}.gettext.GetTextBasePlugin"
 			displayName = 'Base GNU gettext plugin for java and kotlin projects'
 			description = "GNU gettext base plugin"

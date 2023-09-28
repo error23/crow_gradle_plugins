@@ -1,5 +1,6 @@
 package com.crow.gradle.plugins.gettext
 
+import java.io.ByteArrayOutputStream
 import java.io.File
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
@@ -33,7 +34,11 @@ abstract class MsgFmtTask : BaseGetTextTask() {
     @get:Input
     abstract val targetBundle: Property<String>
 
-    /** Target bundle output output path. */
+    /** If true, check if all strings are translated and fail if not. */
+    @get:Input
+    abstract val checkTranslated: Property<Boolean>
+
+    /** Target bundle output path. */
     @Internal
     val bundleOutput = targetBundle.map { it.replace('.', File.separatorChar) }
 
@@ -57,6 +62,8 @@ abstract class MsgFmtTask : BaseGetTextTask() {
                 continue
             }
 
+            val stderr = ByteArrayOutputStream()
+
             project.exec {
                 executable = cmd.get()
                 args(executableArgs.get())
@@ -64,8 +71,40 @@ abstract class MsgFmtTask : BaseGetTextTask() {
                 args("-d", outputDirectory.get().asFile.relativeTo(project.projectDir).path)
                 args("-r", targetBundle.get())
                 args("-l", po.file.toLocaleString())
+                args("--statistics")
                 args(po.file.relativeTo(project.projectDir).path)
+                errorOutput = stderr
+
             }
+            checkError(stderr.toString(), po.file.name)
+        }
+    }
+
+    private fun checkError(message: String, poFileName: String) {
+
+        val errorMessage = message.replace(".*uses unchecked or unsafe operations.*\n".toRegex(), "")
+          .replace(".*unchecked for details.*\n".toRegex(), "").trimEnd()
+
+        // if last message contains no (it means that there are no translated texts)
+        if (errorMessage.lines().last().contains(".*no?. .*".toRegex())) {
+            // if checkTranslated is true throw exception
+            if (checkTranslated.get()) {
+                throw RuntimeException("$errorMessage file : $poFileName")
+            }
+            // else if is the only message log it as error
+            else if (errorMessage.lines().size == 1) {
+                logger.error(errorMessage)
+            }
+        }
+
+        // if there is more than one message than log them as errors
+        if (errorMessage.lines().size > 1) {
+            logger.error(errorMessage)
+        }
+        // If there is only one message log it as info since we already logged no translation message as error
+        // and --statistics writes into stderr no meter what
+        else {
+            logger.info(errorMessage)
         }
     }
 }

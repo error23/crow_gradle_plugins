@@ -13,13 +13,13 @@ open class GetTextBasePlugin : Plugin<Project> {
     override fun apply(project: Project) {
 
         // Create gettext extension
-        val extension = project.extensions.create<GetTextExtension>("getText")
+        val extension = project.extensions.create<GetTextExtension>("getTextConfig")
 
         // Set encoding convention
         extension.getTextTask.encoding.convention(extension.encoding)
         extension.msgMergeTask.encoding.convention(extension.encoding)
         extension.msgFmtTask.encoding.convention(extension.encoding)
-        extension.generateI18nProperties.encoding.convention(extension.encoding)
+        extension.getTextPropertyTask.encoding.convention(extension.encoding)
 
         // Set pot file convention
         extension.getTextTask.potFile.convention(extension.potFile)
@@ -31,7 +31,7 @@ open class GetTextBasePlugin : Plugin<Project> {
 
         // Set target bundle convention
         extension.msgFmtTask.targetBundle.convention(extension.targetBundle)
-        extension.generateI18nProperties.targetBundle.convention(extension.targetBundle)
+        extension.getTextPropertyTask.targetBundle.convention(extension.targetBundle)
 
         // Register tasks
         project.tasks.register<GetTextTask>("getText") {
@@ -64,15 +64,16 @@ open class GetTextBasePlugin : Plugin<Project> {
             poFiles.setFrom(extension.msgFmtTask.poFiles)
             targetBundle.set(extension.msgFmtTask.targetBundle)
             outputDirectory.set(extension.msgFmtTask.outputDirectory)
+            checkTranslated.set(extension.msgFmtTask.checkTranslated)
         }
 
         project.tasks.register<GetTextPropertyTask>("generateI18nProperties") {
             group = taskGroup
-            description = extension.generateI18nProperties.description.get()
-            encoding.set(extension.generateI18nProperties.encoding)
-            targetBundle.set(extension.generateI18nProperties.targetBundle)
-            i18nPropertiesFile.set(extension.generateI18nProperties.i18nPropertiesFile)
-            defaultTranslationPropertyFile.set(extension.generateI18nProperties.defaultTranslationPropertyFile)
+            description = extension.getTextPropertyTask.description.get()
+            encoding.set(extension.getTextPropertyTask.encoding)
+            targetBundle.set(extension.getTextPropertyTask.targetBundle)
+            i18nPropertiesFile.set(extension.getTextPropertyTask.i18nPropertiesFile)
+            defaultTranslationPropertyFile.set(extension.getTextPropertyTask.defaultTranslationPropertyFile)
         }
     }
 }
