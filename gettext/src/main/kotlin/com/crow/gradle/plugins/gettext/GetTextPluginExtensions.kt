@@ -105,7 +105,7 @@ open class GetTextMsgFmtTaskExtension @Inject constructor(objects: ObjectFactory
     val targetBundle = objects.property<String>().convention(project.group.toString() + "." + project.name + ".i18n.Messages")
 
     /** If true, check if all strings are translated and fail if not. */
-    val checkTranslated: Property<Boolean> = objects.property<Boolean>().convention(false)
+    val checkTranslated: Property<Boolean> = objects.property<Boolean>().convention(true)
 
     init {
         description.convention("Generate java bundle resources and classes from po files.")
