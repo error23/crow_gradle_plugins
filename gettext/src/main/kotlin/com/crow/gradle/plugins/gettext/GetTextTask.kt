@@ -18,54 +18,54 @@ import org.gradle.api.tasks.TaskAction
  */
 abstract class GetTextTask : BaseGetTextTask() {
 
-    /** Set of -k keywords to be used to extract translatable strings. */
-    @get:Input
-    abstract val keywords: SetProperty<String>
+	/** Set of -k keywords to be used to extract translatable strings. */
+	@get:Input
+	abstract val keywords: SetProperty<String>
 
-    /** Set of source files to extract translatable strings from. */
-    @get:InputFiles
-    @get:SkipWhenEmpty
-    @get:IgnoreEmptyDirectories
-    @get:PathSensitive(PathSensitivity.RELATIVE)
-    abstract val sourceFiles: ConfigurableFileCollection
+	/** Set of source files to extract translatable strings from. */
+	@get:InputFiles
+	@get:SkipWhenEmpty
+	@get:IgnoreEmptyDirectories
+	@get:PathSensitive(PathSensitivity.RELATIVE)
+	abstract val sourceFiles: ConfigurableFileCollection
 
-    /** Generated .pot file with extracted translatable strings. */
-    @get:OutputFile
-    abstract val potFile: RegularFileProperty
+	/** Generated .pot file with extracted translatable strings. */
+	@get:OutputFile
+	abstract val potFile: RegularFileProperty
 
-    /** Executes getText command and generates pot file from source files. */
-    @TaskAction
-    fun execute() {
+	/** Executes getText command and generates pot file from source files. */
+	@TaskAction
+	fun execute() {
 
-        // Create parent directories for pot file if they don't exist
-        if (!potFile.get().asFile.parentFile.exists()) potFile.get().asFile.parentFile.mkdirs()
+		// Create parent directories for pot file if they don't exist
+		if (!potFile.get().asFile.parentFile.exists()) potFile.get().asFile.parentFile.mkdirs()
 
-        // Create temporary directory for inputFilesList.txt if it doesn't exist
-        val tempI18nBuildDir = project.layout.buildDirectory.dir("i18n")
-        if (!tempI18nBuildDir.get().asFile.exists()) tempI18nBuildDir.get().asFile.mkdirs()
+		// Create temporary directory for inputFilesList.txt if it doesn't exist
+		val tempI18nBuildDir = project.layout.buildDirectory.dir("i18n")
+		if (!tempI18nBuildDir.get().asFile.exists()) tempI18nBuildDir.get().asFile.mkdirs()
 
-        // Write all source files paths to inputFilesList.txt
-        val inputFilesList = tempI18nBuildDir.get().file("inputFilesList.txt")
-        inputFilesList.asFile
-          .writer(charset(encoding.get())).buffered().use { writer ->
-              sourceFiles.forEach { file ->
-                  val path = file.relativeTo(project.projectDir).path
-                  logger.info("Adding file : {} to inputFilesList.txt", path)
-                  writer.append(path).append(System.lineSeparator())
-              }
-          }
+		// Write all source files paths to inputFilesList.txt
+		val inputFilesList = tempI18nBuildDir.get().file("inputFilesList.txt")
+		inputFilesList.asFile
+		  .writer(charset(encoding.get())).buffered().use { writer ->
+			  sourceFiles.forEach { file ->
+				  val path = file.relativeTo(project.projectDir).path
+				  logger.info("Adding file : {} to inputFilesList.txt", path)
+				  writer.append(path).append(System.lineSeparator())
+			  }
+		  }
 
-        // Execute gettext command using inputFilesList.txt
-        project.exec {
-            executable = cmd.get()
-            args(executableArgs.get().toList())
-            if (logger.isInfoEnabled) args("--verbose")
-            args("--from-code=${encoding.get()}")
-            args("--keyword=${keywords.get().joinToString(separator = " -k")}".split(" "))
-            args("--files-from=${inputFilesList.asFile.relativeTo(project.projectDir).path}")
-            args("-o${potFile.get().asFile.relativeTo(project.projectDir).path}")
+		// Execute gettext command using inputFilesList.txt
+		project.exec {
+			executable = cmd.get()
+			args(executableArgs.get().toList())
+			if (logger.isInfoEnabled) args("--verbose")
+			args("--from-code=${encoding.get()}")
+			args("--keyword=${keywords.get().joinToString(separator = " -k")}".split(" "))
+			args("--files-from=${inputFilesList.asFile.relativeTo(project.projectDir).path}")
+			args("-o${potFile.get().asFile.relativeTo(project.projectDir).path}")
 
-        }
-        if (potFile.get().asFile.exists()) potFile.get().asFile.setEncoding(encoding.get())
-    }
+		}
+		if (potFile.get().asFile.exists()) potFile.get().asFile.setEncoding(encoding.get())
+	}
 }
