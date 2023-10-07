@@ -5,7 +5,6 @@ import javax.inject.Inject
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
-import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Nested
 import org.gradle.kotlin.dsl.property
 import org.gradle.kotlin.dsl.setProperty
@@ -103,7 +102,7 @@ open class GetTextMsgFmtTaskExtension @Inject constructor(objects: ObjectFactory
 	val targetBundle = objects.property<String>().convention(project.group.toString() + "." + project.name + ".i18n.Messages")
 
 	/** If true, check if all strings are translated and fail if not. */
-	val checkTranslated: Property<Boolean> = objects.property<Boolean>().convention(true)
+	val checkTranslated = objects.property<Boolean>().convention(true)
 
 	init {
 		description.convention("Generate java bundle resources and classes from po files.")
