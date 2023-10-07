@@ -14,7 +14,7 @@ gradlePlugin {
 			description = "GNU gettext base plugin"
 			tags.addAll("gettext", "i18n", "gettext", "gettext-commons", "DSL")
 		}
-		gettext {
+		'gettext' {
 			id = "${group}.gettext"
 			implementationClass = "${group}.gettext.GetTextPlugin"
 			displayName = 'GNU gettext plugin for java and kotlin projects'
