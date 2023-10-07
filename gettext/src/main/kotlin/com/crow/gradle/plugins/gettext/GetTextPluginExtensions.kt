@@ -4,10 +4,8 @@ import java.io.File
 import javax.inject.Inject
 import org.gradle.api.Action
 import org.gradle.api.Project
-import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
-import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Nested
 import org.gradle.kotlin.dsl.property
 import org.gradle.kotlin.dsl.setProperty
@@ -34,7 +32,7 @@ open class GetTextGetTextTaskExtension @Inject constructor(objects: ObjectFactor
 	: GetTextBaseExtension(objects) {
 
 	/** Set of -k keywords to be used to extract translatable strings. */
-	val keywords: SetProperty<String> = objects.setProperty<String>().convention(setOf(
+	val keywords = objects.setProperty<String>().convention(setOf(
 	  "trc:lc,2",
 	  "trnc:lc,2,3",
 	  "tr",
@@ -96,7 +94,7 @@ open class GetTextMsgFmtTaskExtension @Inject constructor(objects: ObjectFactory
 	: GetTextBaseExtension(objects) {
 
 	/** Set of po files to generate java bundle from. */
-	val poFiles: ConfigurableFileCollection = objects.fileCollection().from(project.layout.projectDirectory.dir("src/main/resources/i18n").asFileTree.matching { include("**/*.po") })
+	val poFiles = objects.fileCollection().from(project.layout.projectDirectory.dir("src/main/resources/i18n").asFileTree.matching { include("**/*.po") })
 
 	/** Output directory for generated java bundle. */
 	val outputDirectory = objects.directoryProperty().convention(project.layout.buildDirectory.dir("classes/java/main"))
