@@ -1,5 +1,9 @@
 package com.crow.gradle.plugins.gettext
 
+import com.crow.gradle.plugins.gettext.tasks.GetTextPropertyTask
+import com.crow.gradle.plugins.gettext.tasks.GetTextTask
+import com.crow.gradle.plugins.gettext.tasks.MsgFmtTask
+import com.crow.gradle.plugins.gettext.tasks.MsgMergeTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.create

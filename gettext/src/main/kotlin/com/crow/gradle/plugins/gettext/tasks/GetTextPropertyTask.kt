@@ -1,4 +1,4 @@
-package com.crow.gradle.plugins.gettext
+package com.crow.gradle.plugins.gettext.tasks
 
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property

@@ -1,4 +1,4 @@
-package com.crow.gradle.plugins.gettext
+package com.crow.gradle.plugins.gettext.tasks
 
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -39,6 +39,7 @@ abstract class MsgFmtTask : BaseGetTextTask() {
 	abstract val checkTranslated: Property<Boolean>
 
 	/** Target bundle output path. */
+	@Suppress("LeakingThis")
 	@Internal
 	val bundleOutput = targetBundle.map { it.replace('.', File.separatorChar) }
 

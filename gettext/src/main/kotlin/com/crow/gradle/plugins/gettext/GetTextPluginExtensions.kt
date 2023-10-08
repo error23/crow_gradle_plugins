@@ -26,7 +26,10 @@ open class GetTextBaseExtension @Inject constructor(objects: ObjectFactory) {
 
 }
 
-/** GetTextTask extension used to configure [GetTextTask] task. */
+/**
+ * GetTextTask extension used to configure
+ * [com.crow.gradle.plugins.gettext.tasks.GetTextTask] task.
+ */
 open class GetTextGetTextTaskExtension @Inject constructor(objects: ObjectFactory, project: Project)
 	: GetTextBaseExtension(objects) {
 
@@ -64,7 +67,10 @@ open class GetTextGetTextTaskExtension @Inject constructor(objects: ObjectFactor
 	}
 }
 
-/** GetTextTask extension used to configure [MsgMergeTask] task. */
+/**
+ * GetTextTask extension used to configure
+ * [com.crow.gradle.plugins.gettext.tasks.MsgMergeTask] task.
+ */
 open class GetTextMsgMergeTaskExtension @Inject constructor(objects: ObjectFactory, project: Project)
 	: GetTextBaseExtension(objects) {
 
@@ -88,7 +94,10 @@ open class GetTextMsgMergeTaskExtension @Inject constructor(objects: ObjectFacto
 	}
 }
 
-/** GetTextTask extension used to configure [MsgFmtTask] task. */
+/**
+ * GetTextTask extension used to configure
+ * [com.crow.gradle.plugins.gettext.tasks.MsgFmtTask] task.
+ */
 open class GetTextMsgFmtTaskExtension @Inject constructor(objects: ObjectFactory, project: Project)
 	: GetTextBaseExtension(objects) {
 
@@ -115,7 +124,10 @@ open class GetTextMsgFmtTaskExtension @Inject constructor(objects: ObjectFactory
 	}
 }
 
-/** GetTextTask extension used to configure [GetTextPropertyTask]. */
+/**
+ * GetTextTask extension used to configure
+ * [com.crow.gradle.plugins.gettext.tasks.GetTextPropertyTask].
+ */
 open class GetTextPropertyTaskExtension @Inject constructor(objects: ObjectFactory, project: Project)
 	: GetTextBaseExtension(objects) {
 
@@ -134,6 +146,7 @@ open class GetTextPropertyTaskExtension @Inject constructor(objects: ObjectFacto
 }
 
 /** Global GetText plugin extension. */
+@Suppress("Unused")
 abstract class GetTextExtension @Inject constructor(objects: ObjectFactory, project: Project) {
 
 	/**
@@ -175,19 +188,31 @@ abstract class GetTextExtension @Inject constructor(objects: ObjectFactory, proj
 	 */
 	val targetBundle = objects.property<String>().convention(project.group.toString() + "." + project.name + ".i18n.Messages")
 
-	/** [GetTextTask] specific configuration. */
+	/**
+	 * [com.crow.gradle.plugins.gettext.tasks.GetTextTask] specific
+	 * configuration.
+	 */
 	@get:Nested
 	abstract val getTextTask: GetTextGetTextTaskExtension
 
-	/** [MsgMergeTask] specific configuration. */
+	/**
+	 * [com.crow.gradle.plugins.gettext.tasks.MsgMergeTask] specific
+	 * configuration.
+	 */
 	@get:Nested
 	abstract val msgMergeTask: GetTextMsgMergeTaskExtension
 
-	/** [MsgFmtTask] specific configuration. */
+	/**
+	 * [com.crow.gradle.plugins.gettext.tasks.MsgFmtTask] specific
+	 * configuration.
+	 */
 	@get:Nested
 	abstract val msgFmtTask: GetTextMsgFmtTaskExtension
 
-	/** [GetTextPropertyTask] specific configuration. */
+	/**
+	 * [com.crow.gradle.plugins.gettext.tasks.GetTextPropertyTask] specific
+	 * configuration.
+	 */
 	@get:Nested
 	abstract val getTextPropertyTask: GetTextPropertyTaskExtension
 
