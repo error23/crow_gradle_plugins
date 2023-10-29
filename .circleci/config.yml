@@ -29,7 +29,7 @@ jobs:
             if [ -z "${CIRCLE_TAG}" ]; then
               ./gradlew clean build
             else
-              ./gradlew clean build -P version=${CIRCLE_TAG}
+              ./gradlew clean build -P version=`echo ${CIRCLE_TAG} | tr -d 'releases/'`
             fi
 
       - run:
@@ -76,7 +76,7 @@ jobs:
       # Publish gradle plugins
       - run:
           name: Publish gradle plugins
-          command: ./gradlew publish
+          command: ./gradlew publish -P version=`echo ${CIRCLE_TAG} | tr -d 'releases/'`
 
 workflows:
   version: 2
