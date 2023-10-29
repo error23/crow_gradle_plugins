@@ -18,24 +18,7 @@ class GetTextPlugin : Plugin<Project> {
 
 		// Create gettext extension
 		val extension = project.extensions.create<GetTextExtension>("getTextConfig")
-
-		// Set encoding convention
-		extension.getTextTask.encoding.convention(extension.encoding)
-		extension.msgMergeTask.encoding.convention(extension.encoding)
-		extension.msgFmtTask.encoding.convention(extension.encoding)
-		extension.getTextPropertyTask.encoding.convention(extension.encoding)
-
-		// Set pot file convention
-		extension.getTextTask.potFile.convention(extension.potFile)
-		extension.msgMergeTask.potFile.convention(extension.potFile)
-
-		// Set i18n directory convention
-		extension.msgMergeTask.i18nDirectory.convention(extension.i18nDirectory)
-		extension.msgFmtTask.poFiles.setFrom(extension.i18nDirectory.map { it.asFileTree.matching { include("**/*.po") } })
-
-		// Set target bundle convention
-		extension.msgFmtTask.targetBundle.convention(extension.targetBundle)
-		extension.getTextPropertyTask.targetBundle.convention(extension.targetBundle)
+		setupExtension(extension)
 
 		// Register tasks
 		val getTextTask = project.tasks.register<GetTextTask>("getText") {
@@ -88,5 +71,31 @@ class GetTextPlugin : Plugin<Project> {
 		project.tasks.named("processResources").configure {
 			dependsOn(generateI18nProperties)
 		}
+	}
+
+	/**
+	 * Setup global extension conventions.
+	 *
+	 * @param extension to set up
+	 */
+	private fun setupExtension(extension: GetTextExtension) {
+		
+		// Set encoding convention
+		extension.getTextTask.encoding.convention(extension.encoding)
+		extension.msgMergeTask.encoding.convention(extension.encoding)
+		extension.msgFmtTask.encoding.convention(extension.encoding)
+		extension.getTextPropertyTask.encoding.convention(extension.encoding)
+
+		// Set pot file convention
+		extension.getTextTask.potFile.convention(extension.potFile)
+		extension.msgMergeTask.potFile.convention(extension.potFile)
+
+		// Set i18n directory convention
+		extension.msgMergeTask.i18nDirectory.convention(extension.i18nDirectory)
+		extension.msgFmtTask.poFiles.setFrom(extension.i18nDirectory.map { it.asFileTree.matching { include("**/*.po") } })
+
+		// Set target bundle convention
+		extension.msgFmtTask.targetBundle.convention(extension.targetBundle)
+		extension.getTextPropertyTask.targetBundle.convention(extension.targetBundle)
 	}
 }
