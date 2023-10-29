@@ -1,0 +1,22 @@
+plugins {
+	id "org.gradle.kotlin.kotlin-dsl" version "$kotlinDslVersion"
+	id "com.gradle.plugin-publish" version "$gradlePluginPublishVersion"
+}
+
+gradlePlugin {
+	website.set(projectUrl)
+	vcsUrl.set(projectUrl)
+	plugins {
+		'linux-packaging' {
+			id = "${group}.linux-packaging"
+			implementationClass = "${group}.packaging.LinuxPackagingPlugin"
+			displayName = 'Linux packaging plugin'
+			description = "Generate different linux packages"
+			tags.addAll("linux", "packaging", "DSL")
+		}
+	}
+}
+
+dependencies {
+	implementation "com.bmuschko:gradle-docker-plugin:$dockerRemoteApiVersion"
+}

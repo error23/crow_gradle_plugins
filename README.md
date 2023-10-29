@@ -2,4 +2,5 @@
 
 Some gradle plugins implementation
 
-* [GetTextPlugin Documentation](gettext/README.md)
+* [gettext-plugin Documentation](gettext/README.md)
+* [linux-packaging-plugin Documentation](linux-packaging/README.md)
