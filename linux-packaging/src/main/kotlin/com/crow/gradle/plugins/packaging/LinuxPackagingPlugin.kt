@@ -135,7 +135,7 @@ class LinuxPackagingPlugin : Plugin<Project> {
 					description = extension.buildDockerImageTask.description.get()
 					targetImageId("${extension.buildDockerImageTask.dockerImageNamePrefix.get().lowercase()}_${packageType.lowercase()}:${project.version}")
 					hostConfig.autoRemove.set(true)
-					hostConfig.binds.put(extension.buildDockerImageTask.inputDirectory.dir(packageType).get().asFile.absolutePath, "/root/build")
+					hostConfig.binds.put(extension.buildDockerImageTask.inputDirectory.dir("${packageType}/${extension.buildDockerImageTask.packageName.get()}").get().asFile.absolutePath, "/root/build/${extension.buildDockerImageTask.packageName.get()}")
 				}
 
 				project.tasks.register<DockerStartContainer>("startDockerContainer${packageType.uppercaseFirstChar()}") {
@@ -205,6 +205,7 @@ class LinuxPackagingPlugin : Plugin<Project> {
 		extension.processSharedSourcesTask.packageName.convention(extension.packageName)
 		extension.processDistributionSourcesTask.packageName.convention(extension.packageName)
 		extension.processArtifactsTask.packageName.convention(extension.packageName)
+		extension.buildDockerImageTask.packageName.convention(extension.packageName)
 
 		// Set filter properties convention
 		extension.processSharedResourcesTask.filterProperties.convention(extension.filterProperties)

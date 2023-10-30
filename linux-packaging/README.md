@@ -534,6 +534,11 @@ linuxPackagingConfig {
 	buildDockerImageTask {
 
 		/**
+		 * Overrides global distributed package name.
+		 */
+		packageName = "${project.name}_${project.version}"
+
+		/**
 		 * Overrides global settings of different linux distributions to package.
 		 *
 		 * @see [ LinuxPackagingInitTaskExtension.distributionDirectory ]

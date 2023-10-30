@@ -268,6 +268,9 @@ open class ProcessArtifactsTaskExtension @Inject constructor(objects: ObjectFact
 open class BuildDockerImageTaskExtension @Inject constructor(objects: ObjectFactory, project: Project)
 	: LinuxPackagingBaseExtension(objects) {
 
+	/** Overrides distributed package name. */
+	val packageName = objects.property<String>().convention("${project.name}_${project.version}")
+
 	/**
 	 * Docker input directory.
 	 *
