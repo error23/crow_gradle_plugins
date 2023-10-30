@@ -37,7 +37,6 @@ abstract class ProcessArtifactsTask : LinuxPackagingProcessBaseTask() {
 				project.copy {
 					from(if (unArchive.get()) artifact.unArchive() else artifact)
 					into(outputDirectory.get().dir(packageType).dir(packageName.get()).dir(distributionPath.get()))
-					addReplaceTokensFilter()
 					addInclude()
 					addExclude()
 				}
