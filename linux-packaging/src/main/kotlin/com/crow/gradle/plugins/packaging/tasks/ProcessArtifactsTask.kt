@@ -33,7 +33,6 @@ abstract class ProcessArtifactsTask : LinuxPackagingProcessBaseTask() {
 	@TaskAction
 	fun execute() {
 		for (packageType in packageTypes.get()) {
-			println(packageType)
 			for (artifact in artifacts) {
 				project.copy {
 					from(if (unArchive.get()) artifact.unArchive() else artifact)

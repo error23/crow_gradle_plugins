@@ -92,7 +92,6 @@ getTextConfig {
 				"tr",
 				"mrktr",
 				"trn:1,2",
-				"println"
 		].toSet()
 
 		/** Set of source files to extract translatable strings from. */
