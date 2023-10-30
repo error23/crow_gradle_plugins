@@ -2,6 +2,7 @@ package com.crow.gradle.plugins.packaging
 
 import LinuxPackagingExtension
 import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerLogsContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.crow.gradle.plugins.packaging.tasks.LinuxPackagingInitTask
@@ -10,6 +11,9 @@ import com.crow.gradle.plugins.packaging.tasks.ProcessDistributionSourcesTask
 import com.crow.gradle.plugins.packaging.tasks.ProcessDockerSourcesTask
 import com.crow.gradle.plugins.packaging.tasks.ProcessResourcesTask
 import com.crow.gradle.plugins.packaging.tasks.ProcessSharedSourcesTask
+import com.github.dockerjava.api.model.Frame
+import com.github.dockerjava.api.model.StreamType
+import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.create
@@ -138,7 +142,7 @@ class LinuxPackagingPlugin : Plugin<Project> {
 					hostConfig.binds.put(extension.buildDockerImageTask.inputDirectory.dir("${packageType}/${extension.buildDockerImageTask.packageName.get()}").get().asFile.absolutePath, "/root/build/${extension.buildDockerImageTask.packageName.get()}")
 				}
 
-				project.tasks.register<DockerStartContainer>("startDockerContainer${packageType.uppercaseFirstChar()}") {
+				val startDockerContainerTask = project.tasks.register<DockerStartContainer>("startDockerContainer${packageType.uppercaseFirstChar()}") {
 					group = taskGroup
 					dependsOn(createDockerContainerTask)
 					description = extension.buildDockerImageTask.description.get()
@@ -146,12 +150,30 @@ class LinuxPackagingPlugin : Plugin<Project> {
 					if (createContainerTask is DockerCreateContainer) {
 						targetContainerId(createContainerTask.containerId)
 					}
+
+					onError {
+						logger.error("Failed to start docker container ${this.toString()}")
+						throw this
+					}
+				}
+
+				project.tasks.register<DockerLogsContainer>("logDockerContainer${packageType.uppercaseFirstChar()}") {
+					group = taskGroup
+					dependsOn(startDockerContainerTask)
+					description = extension.buildDockerImageTask.description.get()
+					targetContainerId(startDockerContainerTask.get().containerId)
+					onNext {
+						val message = this as Frame
+						if (message.streamType == StreamType.STDERR) {
+							throw GradleException(this.toString())
+						}
+					}
 				}
 			}
 
 			project.tasks.register("packageLinux") {
 				group = "distribution"
-				dependsOn(project.tasks.matching { it.name.startsWith("startDockerContainer") })
+				dependsOn(project.tasks.matching { it.name.startsWith("logDockerContainer") })
 				description = "Package linux distributions"
 			}
 		}
