@@ -140,6 +140,7 @@ class LinuxPackagingPlugin : Plugin<Project> {
 					targetImageId("${extension.buildDockerImageTask.dockerImageNamePrefix.get().lowercase()}_${packageType.lowercase()}:${project.version}")
 					hostConfig.autoRemove.set(true)
 					hostConfig.binds.put(extension.buildDockerImageTask.inputDirectory.dir("${packageType}/${extension.buildDockerImageTask.packageName.get()}").get().asFile.absolutePath, "/root/build/${extension.buildDockerImageTask.packageName.get()}")
+					hostConfig.binds.put(extension.buildDockerImageTask.inputDirectory.dir("${packageType}/artifacts").get().asFile.absolutePath, "/root/build/artifacts")
 				}
 
 				val startDockerContainerTask = project.tasks.register<DockerStartContainer>("startDockerContainer${packageType.uppercaseFirstChar()}") {

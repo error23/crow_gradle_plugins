@@ -86,9 +86,9 @@ abstract class LinuxPackagingProcessBaseTask : LinuxPackagingBaseTask() {
 			"zip" -> return project.zipTree(this)
 			"jar" -> return project.zipTree(this)
 			"tar" -> return project.tarTree(this)
-			"tar.gz" -> return project.tarTree(this)
-			"tar.bz2" -> return project.tarTree(this)
-			"tar.xz" -> return project.tarTree(this)
+			"gz" -> return project.tarTree(this)
+			"bz2" -> return project.tarTree(this)
+			"xz" -> return project.tarTree(this)
 		}
 
 		throw IllegalArgumentException("Unsupported archive type: ${this.extension}")
