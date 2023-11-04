@@ -4,6 +4,7 @@ import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.SkipWhenEmpty
 import org.gradle.api.tasks.TaskAction
 
 /** Task that processes shared resources. */
@@ -18,6 +19,7 @@ abstract class ProcessResourcesTask : LinuxPackagingProcessBaseTask() {
 	 * [LinuxPackagingInitTask.distributionDirectory]/$packageType/Docker.
 	 */
 	@get:InputDirectory
+	@get:SkipWhenEmpty
 	abstract val resourcesDirectory: DirectoryProperty
 
 	/** Build output directory. */

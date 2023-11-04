@@ -5,6 +5,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.SkipWhenEmpty
 import org.gradle.api.tasks.TaskAction
 
 /** Task that processes distribution sources. */
@@ -26,6 +27,7 @@ abstract class ProcessDistributionSourcesTask : LinuxPackagingProcessBaseTask() 
 	 *   needed to build the package.
 	 */
 	@get:InputDirectory
+	@get:SkipWhenEmpty
 	abstract val distributionDirectory: DirectoryProperty
 
 	/**
@@ -48,8 +50,11 @@ abstract class ProcessDistributionSourcesTask : LinuxPackagingProcessBaseTask() 
 	fun execute() {
 		for (packageType in packageTypes.get()) {
 
+			val toCopy = distributionDirectory.get().dir(packageType).dir(sourceDirectoryName.get()).asFile
+			if (!toCopy.exists()) continue
+
 			project.copy {
-				from(distributionDirectory.get().dir(packageType).dir(sourceDirectoryName.get()).asFile)
+				from(toCopy)
 				into(outputDirectory.get().dir(packageType).dir(packageName.get()).asFile)
 				addReplaceTokensFilter()
 				addInclude()

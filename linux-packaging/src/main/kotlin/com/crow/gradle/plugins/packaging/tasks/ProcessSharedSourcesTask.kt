@@ -6,6 +6,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.SkipWhenEmpty
 import org.gradle.api.tasks.TaskAction
 
 /** Task that processes shared sources. */
@@ -20,6 +21,7 @@ abstract class ProcessSharedSourcesTask : LinuxPackagingProcessBaseTask() {
 	 * it in [LinuxPackagingInitTask.distributionDirectory]/$packageType/src.
 	 */
 	@get:InputDirectory
+	@get:SkipWhenEmpty
 	abstract val commonSrcDirectory: DirectoryProperty
 
 	/** Build output directory. */

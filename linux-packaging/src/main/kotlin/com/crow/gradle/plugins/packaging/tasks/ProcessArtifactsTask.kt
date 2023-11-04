@@ -6,6 +6,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.SkipWhenEmpty
 import org.gradle.api.tasks.TaskAction
 
 abstract class ProcessArtifactsTask : LinuxPackagingProcessBaseTask() {
@@ -20,6 +21,7 @@ abstract class ProcessArtifactsTask : LinuxPackagingProcessBaseTask() {
 
 	/** Artifacts to process. */
 	@get:InputFiles
+	@get:SkipWhenEmpty
 	abstract val artifacts: ConfigurableFileCollection
 
 	/** Path of the artifact inside of [outputDirectory]/[packageName]. */
