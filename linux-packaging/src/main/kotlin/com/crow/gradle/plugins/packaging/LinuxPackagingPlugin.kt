@@ -5,6 +5,7 @@ import com.bmuschko.gradle.docker.tasks.container.DockerCopyFileFromContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerCopyFileToContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerLogsContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerRemoveContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerWaitContainer
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
@@ -199,7 +200,7 @@ class LinuxPackagingPlugin : Plugin<Project> {
 					}
 				}
 
-				project.tasks.register<DockerCopyFileFromContainer>("copyArtifactsFromContainer${packageType.uppercaseFirstChar()}") {
+				val copyArtifactsFromContainerTask = project.tasks.register<DockerCopyFileFromContainer>("copyArtifactsFromContainer${packageType.uppercaseFirstChar()}") {
 					group = taskGroup
 					dependsOn(dockerWaitContainerTask)
 					description = extension.buildDockerImageTask.description.get()
@@ -210,11 +211,21 @@ class LinuxPackagingPlugin : Plugin<Project> {
 					hostPath.set(extension.buildDockerImageTask.inputDirectory.dir("${packageType}/artifacts").get().asFile.absolutePath)
 					remotePath.set("/root/build/artifacts")
 				}
+
+				project.tasks.register<DockerRemoveContainer>("removeDockerContainer${packageType.uppercaseFirstChar()}") {
+					group = taskGroup
+					dependsOn(copyArtifactsFromContainerTask)
+					description = extension.buildDockerImageTask.description.get()
+					val createContainerTask = project.tasks.getByName("createDockerContainer${packageType.uppercaseFirstChar()}")
+					if (createContainerTask is DockerCreateContainer) {
+						targetContainerId(createContainerTask.containerId)
+					}
+				}
 			}
 
 			project.tasks.register("packageLinux") {
 				group = "distribution"
-				dependsOn(project.tasks.matching { it.name.startsWith("copyArtifactsFromContainer") })
+				dependsOn(project.tasks.matching { it.name.startsWith("removeDockerContainer") })
 				description = "Package linux distributions"
 			}
 		}
