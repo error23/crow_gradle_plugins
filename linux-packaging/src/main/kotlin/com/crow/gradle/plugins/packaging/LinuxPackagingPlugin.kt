@@ -1,9 +1,12 @@
 package com.crow.gradle.plugins.packaging
 
 import LinuxPackagingExtension
+import com.bmuschko.gradle.docker.tasks.container.DockerCopyFileFromContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerCopyFileToContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerCreateContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerLogsContainer
 import com.bmuschko.gradle.docker.tasks.container.DockerStartContainer
+import com.bmuschko.gradle.docker.tasks.container.DockerWaitContainer
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.crow.gradle.plugins.packaging.tasks.LinuxPackagingInitTask
 import com.crow.gradle.plugins.packaging.tasks.ProcessArtifactsTask
@@ -139,13 +142,23 @@ class LinuxPackagingPlugin : Plugin<Project> {
 					description = extension.buildDockerImageTask.description.get()
 					targetImageId("${extension.buildDockerImageTask.dockerImageNamePrefix.get().lowercase()}_${packageType.lowercase()}:${project.version}")
 					hostConfig.autoRemove.set(true)
-					hostConfig.binds.put(extension.buildDockerImageTask.inputDirectory.dir("${packageType}/${extension.buildDockerImageTask.packageName.get()}").get().asFile.absolutePath, "/root/build/${extension.buildDockerImageTask.packageName.get()}")
-					hostConfig.binds.put(extension.buildDockerImageTask.inputDirectory.dir("${packageType}/artifacts").get().asFile.absolutePath, "/root/build/artifacts")
+				}
+
+				val copyProjectToContainerTask = project.tasks.register<DockerCopyFileToContainer>("copyProjectToContainer${packageType.uppercaseFirstChar()}") {
+					group = taskGroup
+					dependsOn(createDockerContainerTask)
+					description = extension.buildDockerImageTask.description.get()
+					val createContainerTask = project.tasks.getByName("createDockerContainer${packageType.uppercaseFirstChar()}")
+					if (createContainerTask is DockerCreateContainer) {
+						targetContainerId(createContainerTask.containerId)
+					}
+					hostPath.set(extension.buildDockerImageTask.inputDirectory.dir("${packageType}/${extension.buildDockerImageTask.packageName.get()}").get().asFile.absolutePath)
+					remotePath.set("/root/build/")
 				}
 
 				val startDockerContainerTask = project.tasks.register<DockerStartContainer>("startDockerContainer${packageType.uppercaseFirstChar()}") {
 					group = taskGroup
-					dependsOn(createDockerContainerTask)
+					dependsOn(copyProjectToContainerTask)
 					description = extension.buildDockerImageTask.description.get()
 					val createContainerTask = project.tasks.getByName("createDockerContainer${packageType.uppercaseFirstChar()}")
 					if (createContainerTask is DockerCreateContainer) {
@@ -163,18 +176,45 @@ class LinuxPackagingPlugin : Plugin<Project> {
 					dependsOn(startDockerContainerTask)
 					description = extension.buildDockerImageTask.description.get()
 					targetContainerId(startDockerContainerTask.get().containerId)
+					follow.set(true)
+					tailAll.set(true)
+
 					onNext {
+						logger.quiet(this.toString())
+
 						val message = this as Frame
 						if (message.streamType == StreamType.STDERR) {
 							throw GradleException(this.toString())
 						}
 					}
 				}
+
+				val dockerWaitContainerTask = project.tasks.register<DockerWaitContainer>("waitDockerContainer${packageType.uppercaseFirstChar()}") {
+					group = taskGroup
+					dependsOn(startDockerContainerTask)
+					description = extension.buildDockerImageTask.description.get()
+					val createContainerTask = project.tasks.getByName("createDockerContainer${packageType.uppercaseFirstChar()}")
+					if (createContainerTask is DockerCreateContainer) {
+						targetContainerId(createContainerTask.containerId)
+					}
+				}
+
+				project.tasks.register<DockerCopyFileFromContainer>("copyArtifactsFromContainer${packageType.uppercaseFirstChar()}") {
+					group = taskGroup
+					dependsOn(dockerWaitContainerTask)
+					description = extension.buildDockerImageTask.description.get()
+					val createContainerTask = project.tasks.getByName("createDockerContainer${packageType.uppercaseFirstChar()}")
+					if (createContainerTask is DockerCreateContainer) {
+						targetContainerId(createContainerTask.containerId)
+					}
+					hostPath.set(extension.buildDockerImageTask.inputDirectory.dir("${packageType}/artifacts").get().asFile.absolutePath)
+					remotePath.set("/root/build/artifacts")
+				}
 			}
 
 			project.tasks.register("packageLinux") {
 				group = "distribution"
-				dependsOn(project.tasks.matching { it.name.startsWith("logDockerContainer") })
+				dependsOn(project.tasks.matching { it.name.startsWith("copyArtifactsFromContainer") })
 				description = "Package linux distributions"
 			}
 		}
