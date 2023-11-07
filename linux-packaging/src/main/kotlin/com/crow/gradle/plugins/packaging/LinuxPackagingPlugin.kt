@@ -201,6 +201,7 @@ class LinuxPackagingPlugin : Plugin<Project> {
 
 				project.tasks.register<DockerCopyFileFromContainer>("copyArtifactsFromContainer${packageType.uppercaseFirstChar()}") {
 					group = taskGroup
+					shouldRunAfter(dockerWaitContainerTask)
 					dependsOn(dockerWaitContainerTask)
 					description = extension.buildDockerImageTask.description.get()
 					val createContainerTask = project.tasks.getByName("createDockerContainer${packageType.uppercaseFirstChar()}")
