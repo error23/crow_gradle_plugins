@@ -141,7 +141,7 @@ class LinuxPackagingPlugin : Plugin<Project> {
 					dependsOn(buildDockerImageTask)
 					description = extension.buildDockerImageTask.description.get()
 					targetImageId("${extension.buildDockerImageTask.dockerImageNamePrefix.get().lowercase()}_${packageType.lowercase()}:${project.version}")
-					hostConfig.autoRemove.set(true)
+					hostConfig.autoRemove.set(false)
 				}
 
 				val copyProjectToContainerTask = project.tasks.register<DockerCopyFileToContainer>("copyProjectToContainer${packageType.uppercaseFirstChar()}") {
@@ -201,7 +201,6 @@ class LinuxPackagingPlugin : Plugin<Project> {
 
 				project.tasks.register<DockerCopyFileFromContainer>("copyArtifactsFromContainer${packageType.uppercaseFirstChar()}") {
 					group = taskGroup
-					shouldRunAfter(dockerWaitContainerTask)
 					dependsOn(dockerWaitContainerTask)
 					description = extension.buildDockerImageTask.description.get()
 					val createContainerTask = project.tasks.getByName("createDockerContainer${packageType.uppercaseFirstChar()}")
