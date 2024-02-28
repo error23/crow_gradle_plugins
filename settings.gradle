@@ -1,3 +1,5 @@
 rootProject.name = 'crow_gradle_plugins'
 include 'gettext'
 include 'linux-packaging'
+include 'poetry'
+
