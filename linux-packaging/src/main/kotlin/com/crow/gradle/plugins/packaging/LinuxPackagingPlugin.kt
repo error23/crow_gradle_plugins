@@ -167,7 +167,7 @@ class LinuxPackagingPlugin : Plugin<Project> {
 					}
 
 					onError {
-						logger.error("Failed to start docker container ${this.toString()}")
+						logger.error("Failed to start docker container ${this}")
 						throw this
 					}
 				}
@@ -210,6 +210,12 @@ class LinuxPackagingPlugin : Plugin<Project> {
 					}
 					hostPath.set(extension.buildDockerImageTask.inputDirectory.dir("${packageType}/artifacts").get().asFile.absolutePath)
 					remotePath.set("/root/build/artifacts")
+
+					doFirst {
+						if (extension.buildDockerImageTask.inputDirectory.dir("${packageType}/artifacts").get().asFile.exists()) {
+							extension.buildDockerImageTask.inputDirectory.dir("${packageType}/artifacts").get().asFile.deleteRecursively()
+						}
+					}
 				}
 
 				project.tasks.register<DockerRemoveContainer>("removeDockerContainer${packageType.uppercaseFirstChar()}") {
