@@ -4,9 +4,7 @@ import javax.inject.Inject
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
-import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Nested
-import org.gradle.api.tasks.OutputFile
 import org.gradle.kotlin.dsl.property
 
 /**
@@ -44,6 +42,11 @@ open class PoetryConfigInitTaskExtension @Inject constructor(objects: ObjectFact
  */
 open class PoetryInitProjectStructureTaskExtension @Inject constructor(objects: ObjectFactory, project: Project)
 	: PoetryBaseExtension(objects) {
+
+	/**
+	 * Overrides global project name.
+	 */
+	val projectName = objects.property<String>().convention(project.name)
 
 	/**
 	 * Overrides global Directory containing main python sources.
@@ -138,7 +141,6 @@ open class PoetryInitPyProjectTaskExtension @Inject constructor(objects: ObjectF
 	/**
 	 * Overrides global readme file.
 	 */
-	@get:InputFile
 	val readmeFile = objects.fileProperty().convention(project.layout.projectDirectory.file("README.md"))
 
 	/**
@@ -169,11 +171,33 @@ open class PoetryInitPyProjectTaskExtension @Inject constructor(objects: ObjectF
 	/**
 	 * Output pyproject.toml file.
 	 */
-	@get:OutputFile
 	val pyprojectFile = objects.fileProperty().convention(project.layout.projectDirectory.file("pyproject.toml"))
 
 	init {
 		description.convention("Initializes pyproject.toml file.")
+		poetryCmd.convention("poetry")
+	}
+}
+
+/**
+ * Poetry plugin init environment task extension.
+ * Used to configure [com.crow.gradle.plugins.poetry.tasks.PoetryInitEnvironmentTask] task.
+ */
+open class PoetryInitEnvironmentTaskExtension @Inject constructor(objects: ObjectFactory, project: Project)
+	: PoetryBaseExtension(objects) {
+
+	/**
+	 * Overrides global python project version.
+	 */
+	val projectPythonVersion = objects.property<String>()
+
+	/**
+	 * directory containing virtual environment.
+	 */
+	val virtualEnvironmentDirectory = objects.directoryProperty().convention(project.layout.projectDirectory.dir(".venv"))
+
+	init {
+		description.convention("Initializes poetry environment.")
 		poetryCmd.convention("poetry")
 	}
 }
@@ -273,6 +297,13 @@ abstract class PoetryExtension @Inject constructor(objects: ObjectFactory, proje
 	@get:Nested
 	abstract val poetryInitPyProjectTask: PoetryInitPyProjectTaskExtension
 
+	/**
+	 * [com.crow.gradle.plugins.poetry.tasks.PoetryInitEnvironmentTask]
+	 * specific configuration.
+	 */
+	@get:Nested
+	abstract val poetryInitEnvironmentTask: PoetryInitEnvironmentTaskExtension
+
 	fun poetryConfigInitTask(action: Action<in PoetryConfigInitTaskExtension>) {
 		action.execute(poetryConfigInitTask)
 	}
@@ -287,5 +318,9 @@ abstract class PoetryExtension @Inject constructor(objects: ObjectFactory, proje
 
 	fun poetryInitPyProjectTask(action: Action<in PoetryInitPyProjectTaskExtension>) {
 		action.execute(poetryInitPyProjectTask)
+	}
+
+	fun poetryInitEnvironmentTask(action: Action<in PoetryInitEnvironmentTaskExtension>) {
+		action.execute(poetryInitEnvironmentTask)
 	}
 }

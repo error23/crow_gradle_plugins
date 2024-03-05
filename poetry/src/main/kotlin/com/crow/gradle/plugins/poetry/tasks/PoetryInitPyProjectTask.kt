@@ -110,7 +110,7 @@ abstract class PoetryInitPyProjectTask : PoetryBaseTask() {
 			
 			packages = [
 			    { include = "${projectName.get()}", from = "${mainSourcesDirectory.get().asFile.relativeTo(project.projectDir)}" },
-			    { include = "${projectName.get()}", from = "${mainResourcesDirectory.get().asFile.relativeTo(project.projectDir)}" }
+			    { include = "${projectName.get()}_res", from = "${mainResourcesDirectory.get().asFile.relativeTo(project.projectDir)}" }
 			]
 
 			[tool.poetry.dependencies]

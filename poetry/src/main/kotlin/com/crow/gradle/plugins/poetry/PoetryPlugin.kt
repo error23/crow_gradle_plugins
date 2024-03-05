@@ -1,6 +1,7 @@
 package com.crow.gradle.plugins.poetry
 
 import com.crow.gradle.plugins.poetry.tasks.PoetryConfigInitTask
+import com.crow.gradle.plugins.poetry.tasks.PoetryInitEnvironmentTask
 import com.crow.gradle.plugins.poetry.tasks.PoetryInitProjectStructureTask
 import com.crow.gradle.plugins.poetry.tasks.PoetryInitPyProjectTask
 import com.crow.gradle.plugins.poetry.tasks.PoetryInitReadMeTask
@@ -28,17 +29,16 @@ class PoetryPlugin : Plugin<Project> {
 		setupExtension(extension)
 
 		// Register tasks
-		project.tasks.register<PoetryConfigInitTask>("poetryConfigInit") {
-			group = taskGroup
+		val poetryConfigInit = project.tasks.register<PoetryConfigInitTask>("poetryConfigInit") {
 			description = extension.poetryConfigInitTask.description.get()
 			poetryCmd.set(extension.poetryConfigInitTask.poetryCmd)
 			poetryTomlFile.set(extension.poetryConfigInitTask.poetryTomlFile)
 		}
 
 		val poetryInitProjectStructure = project.tasks.register<PoetryInitProjectStructureTask>("poetryInitProjectStructure") {
-			group = taskGroup
 			description = extension.poetryInitProjectStructureTask.description.get()
 			poetryCmd.set(extension.poetryInitProjectStructureTask.poetryCmd)
+			projectName.set(extension.poetryInitProjectStructureTask.projectName)
 			mainSourcesDirectory.set(extension.poetryInitProjectStructureTask.mainSourcesDirectory)
 			mainResourcesDirectory.set(extension.poetryInitProjectStructureTask.mainResourcesDirectory)
 			testSourcesDirectory.set(extension.poetryInitProjectStructureTask.testSourcesDirectory)
@@ -46,7 +46,6 @@ class PoetryPlugin : Plugin<Project> {
 		}
 
 		val poetryInitReadMe = project.tasks.register<PoetryInitReadMeTask>("poetryInitReadMe") {
-			group = taskGroup
 			description = extension.poetryInitReadMeTask.description.get()
 			poetryCmd.set(extension.poetryInitReadMeTask.poetryCmd)
 			projectName.set(extension.poetryInitReadMeTask.projectName)
@@ -54,8 +53,7 @@ class PoetryPlugin : Plugin<Project> {
 			readmeFile.set(extension.poetryInitReadMeTask.readmeFile)
 		}
 
-		project.tasks.register<PoetryInitPyProjectTask>("poetryInitPyProject") {
-			group = taskGroup
+		val poetryInitPyProject = project.tasks.register<PoetryInitPyProjectTask>("poetryInitPyProject") {
 			description = extension.poetryInitPyProjectTask.description.get()
 			poetryCmd.set(extension.poetryInitPyProjectTask.poetryCmd)
 			projectName.set(extension.poetryInitPyProjectTask.projectName)
@@ -72,6 +70,16 @@ class PoetryPlugin : Plugin<Project> {
 			pyprojectFile.set(extension.poetryInitPyProjectTask.pyprojectFile)
 
 			dependsOn(poetryInitProjectStructure, poetryInitReadMe)
+		}
+
+		project.tasks.register<PoetryInitEnvironmentTask>("poetryInitEnvironment") {
+			group = taskGroup
+			description = extension.poetryInitEnvironmentTask.description.get()
+			poetryCmd.set(extension.poetryInitEnvironmentTask.poetryCmd)
+			projectPythonVersion.set(extension.poetryInitEnvironmentTask.projectPythonVersion)
+			virtualEnvironmentDirectory.set(extension.poetryInitEnvironmentTask.virtualEnvironmentDirectory)
+
+			dependsOn(poetryConfigInit, poetryInitProjectStructure, poetryInitReadMe, poetryInitPyProject)
 		}
 
 		/*
@@ -106,6 +114,7 @@ class PoetryPlugin : Plugin<Project> {
 		extension.poetryInitProjectStructureTask.poetryCmd.convention(extension.poetryCmd)
 		extension.poetryInitReadMeTask.poetryCmd.convention(extension.poetryCmd)
 		extension.poetryInitPyProjectTask.poetryCmd.convention(extension.poetryCmd)
+		extension.poetryInitEnvironmentTask.poetryCmd.convention(extension.poetryCmd)
 
 		// Set up main sources directory convention
 		extension.poetryInitProjectStructureTask.mainSourcesDirectory.convention(extension.mainSourcesDirectory)
@@ -124,6 +133,7 @@ class PoetryPlugin : Plugin<Project> {
 		extension.poetryInitPyProjectTask.testResourcesDirectory.convention(extension.testResourcesDirectory)
 
 		// Set up project name convention
+		extension.poetryInitProjectStructureTask.projectName.convention(extension.projectName)
 		extension.poetryInitReadMeTask.projectName.convention(extension.projectName)
 		extension.poetryInitPyProjectTask.projectName.convention(extension.projectName)
 
@@ -140,6 +150,7 @@ class PoetryPlugin : Plugin<Project> {
 
 		// Set up project python version convention
 		extension.poetryInitPyProjectTask.projectPythonVersion.convention(extension.projectPythonVersion)
+		extension.poetryInitEnvironmentTask.projectPythonVersion.convention(extension.projectPythonVersion)
 
 	}
 }
