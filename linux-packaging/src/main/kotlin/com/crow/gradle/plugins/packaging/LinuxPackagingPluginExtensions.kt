@@ -26,6 +26,9 @@ open class LinuxPackagingBaseExtension @Inject constructor(objects: ObjectFactor
 	))
 }
 
+/**
+ * Linux packaging plugin process base extension. Used to configure tasks that process sources or resources.
+ */
 open class LinuxPackagingProcessBaseExtension @Inject constructor(objects: ObjectFactory) : LinuxPackagingBaseExtension(objects) {
 
 	/**
@@ -51,7 +54,9 @@ open class LinuxPackagingProcessBaseExtension @Inject constructor(objects: Objec
 
 }
 
-/** Linux packaging plugin init extension. */
+/**
+ *  Linux packaging plugin init extension. Used to configure the [com.crow.gradle.plugins.packaging.tasks.LinuxPackagingInitTask] task.
+ */
 open class LinuxPackagingInitTaskExtension @Inject constructor(objects: ObjectFactory, project: Project)
 	: LinuxPackagingBaseExtension(objects) {
 
@@ -113,7 +118,9 @@ open class LinuxPackagingInitTaskExtension @Inject constructor(objects: ObjectFa
 	}
 }
 
-/** Linux packaging plugin process docker sources extension. */
+/**
+ * Linux packaging plugin process docker sources extension. Used to configure the [com.crow.gradle.plugins.packaging.tasks.ProcessDockerSourcesTask] task.
+ */
 open class ProcessDockerSourcesTaskExtension @Inject constructor(objects: ObjectFactory, project: Project)
 	: LinuxPackagingProcessBaseExtension(objects) {
 
@@ -150,7 +157,9 @@ open class ProcessDockerSourcesTaskExtension @Inject constructor(objects: Object
 	}
 }
 
-/** Linux packaging plugin process distribution sources extension. */
+/**
+ * Linux packaging plugin process distribution sources extension. Used to configure the [com.crow.gradle.plugins.packaging.tasks.ProcessDistributionSourcesTask] task.
+ */
 open class ProcessDistributionSourcesTaskExtension @Inject constructor(objects: ObjectFactory, project: Project)
 	: LinuxPackagingProcessBaseExtension(objects) {
 
@@ -190,7 +199,9 @@ open class ProcessDistributionSourcesTaskExtension @Inject constructor(objects: 
 	}
 }
 
-/** Linux packaging plugin process sources extension. */
+/**
+ * Linux packaging plugin process sources extension. Used to configure the [com.crow.gradle.plugins.packaging.tasks.ProcessSharedSourcesTask] task.
+ */
 open class ProcessSharedSourcesTaskExtension @Inject constructor(objects: ObjectFactory, project: Project)
 	: LinuxPackagingProcessBaseExtension(objects) {
 
@@ -217,7 +228,9 @@ open class ProcessSharedSourcesTaskExtension @Inject constructor(objects: Object
 	}
 }
 
-/** Linux packaging plugin process resources extension. */
+/**
+ * Linux packaging plugin process resources extension. Used to configure the [com.crow.gradle.plugins.packaging.tasks.ProcessResourcesTask] task.
+ */
 open class ProcessSharedResourcesTaskExtension @Inject constructor(objects: ObjectFactory, project: Project)
 	: LinuxPackagingProcessBaseExtension(objects) {
 
@@ -240,7 +253,9 @@ open class ProcessSharedResourcesTaskExtension @Inject constructor(objects: Obje
 	}
 }
 
-/** Linux packaging plugin process artifacts extension. */
+/**
+ * Linux packaging plugin process artifacts extension. Used to configure the [com.crow.gradle.plugins.packaging.tasks.ProcessArtifactsTask] task.
+ */
 open class ProcessArtifactsTaskExtension @Inject constructor(objects: ObjectFactory, project: Project)
 	: LinuxPackagingProcessBaseExtension(objects) {
 
@@ -265,6 +280,9 @@ open class ProcessArtifactsTaskExtension @Inject constructor(objects: ObjectFact
 
 }
 
+/**
+ *  Linux packaging plugin build docker image extension. Used to configure the BuildDockerImageTask task.
+ */
 open class BuildDockerImageTaskExtension @Inject constructor(objects: ObjectFactory, project: Project)
 	: LinuxPackagingBaseExtension(objects) {
 
