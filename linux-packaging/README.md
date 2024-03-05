@@ -9,56 +9,86 @@ Plugin used to create packages for different linux distributions.
 * Configure linux-packaging plugin extension to your needs
 * Run linuxPackagingInitTask to initialize project structure
 * Add dockerfiles and other resources needed to build packages in packaging module
+* In your dockerfile build and save your package in /root/build/artifacts directory
 * Set up your artifact dependencies in build.gradle see example below
 * Run packageLinux task to build packages
 
 ## Example how to apply plugin in packaging module
 
+### - create new packaging gradle module
+
+* In your project just create new gradle module for packaging
+
+### - create new build.gradle in packaging module and apply linux-packaging plugin
+
+* You have to define packageTypes that you want to build here is DISTRO it could be any linux distribution like Debian, RedHat, etc.
+
 ```packaging/build.gradle```
 
 ```groovy
 plugins {
-	id 'com.crow.gradle.plugins.linux-packaging' version '1.1.0'
+	id 'com.crow.gradle.plugins.linux-packaging' version '1.2.1'
+}
+
+linuxPackagingConfig {
+
+	/**
+	 * Global setting of different linux distributions to package.
+	 *
+	 * @see [ LinuxPackagingBaseExtension.packageTypes ]
+	 */
+	packageTypes = ["DISTRO"].toSet()
+	packageName = "yourAppPackageName"
 }
 ```
 
-## Example how to add artifact dependencies
+### - Run init task to initialize module structure
 
-Let's say you have the following structure :
+* This will create necessary directories and files in your module structure that is needed to build packages
+
+* This structure can be modified with linuxPackagingInitTask extension or global extension see more in [Advanced usage](#advanced-usage)
+
+```bash
+user@host[~/project/packaging]$ ./gradlew linuxPackagingInitTask
+```
+
+### - Add artifact dependencies
+
+* Let's say you have the following structure :
 
 ```
---- root
+--- project/
     |--- build.gradle
-    |--- server/
+    |--- yourApp/
          |--- build.gradle
          |--- src/main/java
-         |--- build/libs/server.jar (executable jar artifact produced by server module)
-    |--- packaging/
+         |--- build/libs/yourApp.jar (executable jar artifact produced by your app module)
+    |--- packaging/ (your packaging module)
          |--- build.gradle
          |--- src/main/linux
-              |--- Debian/
+              |--- DISTRO/
                    |--- Docker/
-                        |--- Dockerfile (dockerfile that will build debian package)
-                   |--- src/ (sources that will be packaged in debian package)
+                        |--- Dockerfile (dockerfile that will build DISTRO package)
+                   |--- src/ (sources that will be packaged in DISTRO package)
                         |--- usr/
                              |--- share/
-                                  |--- server/
-                                       |--- server.sh
-                                       |--- server.bat
+                                  |--- yourAppSharedScripts/
+                                       |--- your.sh
+                                       |--- your.bat
+                                       |--- your.properties
 ```
 
-* First thing to do is to add dependency ```distributionArtifacts``` to your packaging module referencing your server module artifact configuration for example archives produced by java plugin
+* First thing to do is to add dependency ```distributionArtifacts``` to your packaging module referencing your app module artifact configuration for example archives produced by java plugin
 
 ```packaging/build.gradle```
 
 ```groovy
 dependencies {
-	distributionArtifacts project(path: ":server", configuration: "archives")
+	distributionArtifacts project(path: ":yourApp", configuration: "archives")
 }
 ```
 
-* Next thing to do is to configure ```processArtifactsTask``` task to process your artifacts
-  for example if you want to copy your server.jar to ```usr/bin/servere.jar``` in your debian package you can do it like this :
+* Next thing to do is to configure ```processArtifactsTask``` task to process your artifacts for example if you want to copy your ```yourApp.jar``` to ```usr/bin/yourApp.jar``` in your DISTRO package you can do it like this :
 
 ```packaging/build.gradle```
 
@@ -70,11 +100,61 @@ linuxPackagingConfig {
 }
 ```
 
-:::note
-See processArtifactsTask extension for finer tuning.
-:::
+* NOTE: you can also use ```copyInclude``` and ```copyExclude``` to filter files that you want to copy. See processArtifactsTask extension for finer tuning.
 
-### Advanced usage :
+### - Add build sources to docker container
+
+* By default, you should store your distro specific build resources like ```DEBIAN/control``` inside of ```DISTRO/src``` folder for example if DISTRO is debian package you should have something like ```src/main/linux/Debian/src/DEBIAN/control```
+    * In our example above ```/packaging/src/main/linux/DISTRO/src/...``` is specific for DISTRO distribution and will be copied only in docker container for DISTRO distribution
+
+
+* For shared ressources between your distributions for example let's say that file ```your-service.service```  should be installed in all distributions at same place ```etc/systemd/system/your-service.service``` than you can put it inside of ```/src/main/linux/src/etc/systemd/system/your-service.service```
+
+#### Example :
+
+* So if we take structure described above in your debian docker container you should have
+    * ```/root/build/yourAppPackageName/DEBIAN/control``` copied from ```src/main/linux/Debian/src/DEBIAN/control```
+    * ```/root/build/yourAppPackageName/usr/bin/yourApp.jar``` copied from ```distributionArtifacts```
+    * ```/root/build/yourAppPackageName/usr/share/yourAppSharedScripts/*``` copied from ```/src/main/linux/src/usr/share/yourAppSharedScripts/*```
+    * ```/root/build/yourAppPackageName/etc/systemd/system/your-service.service``` copied from ```/src/main/linux/src/etc/systemd/system/your-service.service```
+
+* In your other containers like for example Fedora you should have
+    * in ```/build/root/yourAppPackageName``` all specific packages that are in ```src/main/linux/Fedora/src/``` and no packages from ```src/main/linux/Debian/src/```
+    * ```/root/build/yourAppPackageName/usr/bin/yourApp.jar``` copied from ```distributionArtifacts```
+    * ```/root/build/yourAppPackageName/usr/share/yourAppSharedScripts/*``` copied from ```/src/main/linux/src/usr/share/yourAppSharedScripts/*```
+    * ```/root/build/yourAppPackageName/etc/systemd/system/your-service.service``` copied from ```/src/main/linux/src/etc/systemd/system/your-service.service```
+
+### - Add Dockerfile
+
+* Inside every DISTRO folder it should be Docker/ folder where you can write your Dockerfile that will build your linux container, in this folder you can also find all scripts that are needed to docker container itself for example entrypoint.sh or any other ressource you might need in your docker container
+* Your docker container must have at least folder ```/root/build/artifacts/``` else packageLinux task will fail
+
+#### Example of minimal dockerfile:
+
+```/src/main/linux/DISTRO/Docker/Dockefile```
+
+```dockerfile
+FROM DISTRO:version
+
+RUN mkdir -p /root/build/artifacts
+WORKDIR /root/build
+
+RUN yourPackageTool --input-directory yourAppPackageName --output-directory /root/build/artifacts
+
+```
+
+* Best practice is to use ```ENTRYPOINT``` in order to run your package tool and export output package inside of ```/root/build/artifacts/``` folder which is shared at the end inside your project ```build``` folder so you can retrieve your built packages
+
+### - Add build resources to docker container
+
+* There are two ways of adding ressources to a docker container you can put them else inside of ```/src/main/linux/DISTRO/Docker/``` than simply use ```COPY``` inside that specific Dockerfile
+* Or you can put them inside of ```/src/main/linux/resoureces``` and that use ```COPY``` inside Dockerfile from any DISTRO
+
+
+* For example if you have DebianEntryPoint.sh you should put it in ```/src/main/linux/Debian/Docker/``` directly so it will be disponible by ```/src/main/linux/Debian/Docker/Dockerfile``` to ```COPY```
+* But if you have some sharedScript.sh that works for any DISTRO you package than you should put it inside of ```/src/main/linux/resoureces/sharedScript.sh``` and it will be disponible by all Dockerfile to ```COPY```
+
+## Advanced usage
 
 If you need to customize any plugin settings you can use following extension
 All values presented here except filterProperties copyInclude and copyExclude ones are default values set by plugin but in case you need to change some configuration here is complete description of the extension
