@@ -22,9 +22,14 @@ abstract class PoetryIdeaSetupWorkspace : DefaultTask() {
 	fun execute() {
 		val xmlParser = XmlParser(workspaceFile.get().asFile)
 
-		val activationNode = xmlParser.parse("/project/component[@name='ExternalProjectsManager']/system[@id='GRADLE']/state/task[@path='\$PROJECT_DIR$']/activation").firstOrNull()
-		if (activationNode !is Element) throw GradleException("Failed to find activation node in workspace file.")
+		val stateNode = xmlParser.parse("/project/component[@name='ExternalProjectsManager']/system[@id='GRADLE']/state").firstOrNull()
+		if (stateNode !is Element) throw GradleException("Failed to find state node in workspace file.")
 
+		var taskStateNode = stateNode.elements("task").firstOrNull { it.attribute("path").value == "\$PROJECT_DIR$" }
+		if (taskStateNode == null) taskStateNode = stateNode.addElement("task").addAttribute("path", "\$PROJECT_DIR$")
+		if (taskStateNode !is Element) throw GradleException("Failed to find task state node in workspace file.")
+
+		val activationNode = taskStateNode.element("activation") ?: taskStateNode.addElement("activation")
 		val beforeSyncNode = activationNode.element("before_sync") ?: activationNode.addElement("before_sync")
 		val afterSyncNode = activationNode.element("after_sync") ?: activationNode.addElement("after_sync")
 
