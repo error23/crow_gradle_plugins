@@ -36,15 +36,13 @@ abstract class PoetryInitPyProjectTask : PoetryBaseTask() {
 	/**
 	 * Project homepage.
 	 */
-	@get:Input
-	@get:Optional
+	@get:[Input Optional]
 	abstract val projectHomepage: Property<String>
 
 	/**
 	 * Project repository.
 	 */
-	@get:Input
-	@get:Optional
+	@get:[Input Optional]
 	abstract val projectRepository: Property<String>
 
 	/**
