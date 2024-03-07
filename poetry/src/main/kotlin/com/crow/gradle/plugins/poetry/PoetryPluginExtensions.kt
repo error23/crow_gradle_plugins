@@ -49,25 +49,25 @@ open class PoetryInitProjectStructureTaskExtension @Inject constructor(objects: 
 	val projectName = objects.property<String>().convention(project.name)
 
 	/**
-	 * Overrides global Directory containing main python sources.
+	 * Overrides global directory containing main python sources.
 	 * This is the directory where your main application python code lives.
 	 */
 	val mainSourcesDirectory = objects.directoryProperty().convention(project.layout.projectDirectory.dir("src/main/python"))
 
 	/**
-	 * Overrides global Directory containing main resources.
+	 * Overrides global directory containing main resources.
 	 * This is the directory where your main application resources live.
 	 */
 	val mainResourcesDirectory = objects.directoryProperty().convention(project.layout.projectDirectory.dir("src/main/resources"))
 
 	/**
-	 * Overrides global Directory containing test python sources.
+	 * Overrides global directory containing test python sources.
 	 * This is the directory where your test python code lives.
 	 */
 	val testSourcesDirectory = objects.directoryProperty().convention(project.layout.projectDirectory.dir("src/test/python"))
 
 	/**
-	 * Overrides global Directory containing test resources.
+	 * Overrides global directory containing test resources.
 	 * This is the directory where your test resources live.
 	 */
 	val testResourcesDirectory = objects.directoryProperty().convention(project.layout.projectDirectory.dir("src/test/resources"))
@@ -149,22 +149,22 @@ open class PoetryInitPyProjectTaskExtension @Inject constructor(objects: ObjectF
 	val projectPythonVersion = objects.property<String>()
 
 	/**
-	 * Overrides global Directory containing main python sources.
+	 * Overrides global directory containing main python sources.
 	 */
 	val mainSourcesDirectory = objects.directoryProperty().convention(project.layout.projectDirectory.dir("src/main/python"))
 
 	/**
-	 * Overrides global Directory containing main resources.
+	 * Overrides global directory containing main resources.
 	 */
 	val mainResourcesDirectory = objects.directoryProperty().convention(project.layout.projectDirectory.dir("src/main/resources"))
 
 	/**
-	 * Overrides global Directory containing test python sources.
+	 * Overrides global directory containing test python sources.
 	 */
 	val testSourcesDirectory = objects.directoryProperty().convention(project.layout.projectDirectory.dir("src/test/python"))
 
 	/**
-	 * Overrides global Directory containing test resources.
+	 * Overrides global directory containing test resources.
 	 */
 	val testResourcesDirectory = objects.directoryProperty().convention(project.layout.projectDirectory.dir("src/test/resources"))
 
@@ -192,7 +192,7 @@ open class PoetryInitEnvironmentTaskExtension @Inject constructor(objects: Objec
 	val projectPythonVersion = objects.property<String>()
 
 	/**
-	 * directory containing virtual environment.
+	 * Directory containing virtual environment.
 	 */
 	val virtualEnvironmentDirectory = objects.directoryProperty().convention(project.layout.projectDirectory.dir(".venv"))
 
@@ -210,31 +210,31 @@ open class PoetryInitEnvironmentTaskExtension @Inject constructor(objects: Objec
 abstract class PoetryExtension @Inject constructor(objects: ObjectFactory, project: Project) {
 
 	/**
-	 * Global Poetry command to execute.
+	 * Global poetry command to execute.
 	 * @see [PoetryBaseExtension.poetryCmd]
 	 */
 	val poetryCmd = objects.property<String>().convention("poetry")
 
 	/**
-	 * Global Directory containing main python sources.
+	 * Global directory containing main python sources.
 	 * @see [PoetryInitProjectStructureTaskExtension.mainSourcesDirectory] and [PoetryInitPyProjectTaskExtension.mainSourcesDirectory]
 	 */
 	val mainSourcesDirectory = objects.directoryProperty().convention(project.layout.projectDirectory.dir("src/main/python"))
 
 	/**
-	 * Global Directory containing main resources.
+	 * Global directory containing main resources.
 	 * @see [PoetryInitProjectStructureTaskExtension.mainResourcesDirectory] and [PoetryInitPyProjectTaskExtension.mainResourcesDirectory]
 	 */
 	val mainResourcesDirectory = objects.directoryProperty().convention(project.layout.projectDirectory.dir("src/main/resources"))
 
 	/**
-	 * Global Directory containing test python sources.
+	 * Global directory containing test python sources.
 	 * @see [PoetryInitProjectStructureTaskExtension.testSourcesDirectory] and [PoetryInitPyProjectTaskExtension.testSourcesDirectory]
 	 */
 	val testSourcesDirectory = objects.directoryProperty().convention(project.layout.projectDirectory.dir("src/test/python"))
 
 	/**
-	 * Global Directory containing test resources.
+	 * Global directory containing test resources.
 	 * @see [PoetryInitProjectStructureTaskExtension.testResourcesDirectory] and [PoetryInitPyProjectTaskExtension.testResourcesDirectory]
 	 */
 	val testResourcesDirectory = objects.directoryProperty().convention(project.layout.projectDirectory.dir("src/test/resources"))
