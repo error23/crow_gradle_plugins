@@ -73,7 +73,8 @@ abstract class PoetryInitReadMeTask : PoetryBaseTask() {
 			8. Open Settings (Ctrl+Alt+S)
 			9. Navigate to "Build, Execution, Deployment" -> "Build Tools" -> "Gradle"
 			10. Select generate *.iml files for modules imported from gradle
-			11. Open "Gradle" tool window and run "PoetryIdeaSetupWorkspace" task
+			11. Open "Gradle" tool window and run "PoetryInitEnvironment" task
+			12. Open "Gradle" tool window and run "PoetryIdeaSetupWorkspace" task
 			
 			### Configure IntelliJ IDEA Poetry SDK
 			
