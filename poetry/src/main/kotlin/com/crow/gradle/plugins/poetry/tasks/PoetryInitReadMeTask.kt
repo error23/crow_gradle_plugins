@@ -89,7 +89,6 @@ abstract class PoetryInitReadMeTask : PoetryBaseTask() {
 			9. Open "Gradle" tool window and sync gradle project which should run "PoetryIdeaSyncModule" task for each Python module if you have run "PoetryIdeaSetupWorkspace" task before
 			10. Open project structure (Ctrl+Alt+Shift+S) and navigate to "Modules" normally you should see all your python modules with "Poetry (your_module_name)" sdk
 			
-			
 		""".trimIndent())
 
 	}
