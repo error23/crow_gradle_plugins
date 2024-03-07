@@ -5,6 +5,8 @@ import com.crow.gradle.plugins.poetry.tasks.PoetryInitEnvironmentTask
 import com.crow.gradle.plugins.poetry.tasks.PoetryInitProjectStructureTask
 import com.crow.gradle.plugins.poetry.tasks.PoetryInitPyProjectTask
 import com.crow.gradle.plugins.poetry.tasks.PoetryInitReadMeTask
+import com.crow.gradle.plugins.poetry.tasks.idea.PoetryIdeaSetupWorkspace
+import com.crow.gradle.plugins.poetry.tasks.idea.PoetryIdeaSyncModuleTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.create
@@ -22,7 +24,6 @@ class PoetryPlugin : Plugin<Project> {
 
 		// Apply dependency plugins
 		project.plugins.apply("base")
-		//project.plugins.apply("idea")
 
 		// Create linux packaging extension
 		val extension = project.extensions.create<PoetryExtension>("poetryConfig")
@@ -72,7 +73,7 @@ class PoetryPlugin : Plugin<Project> {
 			dependsOn(poetryInitProjectStructure, poetryInitReadMe)
 		}
 
-		project.tasks.register<PoetryInitEnvironmentTask>("poetryInitEnvironment") {
+		val poetryInitEnvironment = project.tasks.register<PoetryInitEnvironmentTask>("poetryInitEnvironment") {
 			group = taskGroup
 			description = extension.poetryInitEnvironmentTask.description.get()
 			poetryCmd.set(extension.poetryInitEnvironmentTask.poetryCmd)
@@ -82,24 +83,24 @@ class PoetryPlugin : Plugin<Project> {
 			dependsOn(poetryConfigInit, poetryInitProjectStructure, poetryInitReadMe, poetryInitPyProject)
 		}
 
-		/*
-		project.tasks.withType(GenerateIdeaModule::class.java).configureEach {
+		project.tasks.register<PoetryIdeaSyncModuleTask>("PoetryIdeaSyncModule") {
+			description = "Sync idea module.iml file with poetry project."
+			ideaModuleFile.set(extension.poetryIdeaSyncTask.moduleImlFile)
+			jdkName.set(extension.poetryIdeaSyncTask.jdkName)
+			mainSourcesDirectory.set(extension.poetryIdeaSyncTask.mainSourcesDirectory)
+			mainResourcesDirectory.set(extension.poetryIdeaSyncTask.mainResourcesDirectory)
+			testSourcesDirectory.set(extension.poetryIdeaSyncTask.testSourcesDirectory)
+			testResourcesDirectory.set(extension.poetryIdeaSyncTask.testResourcesDirectory)
 
-			group = taskGroup
-			val moduleImlDirectoryPath = project.gradle.rootProject.rootProject.projectDir.toString() + "/.idea/modules" + project.projectDir.toString().replace(project.gradle.rootProject.rootProject.projectDir.toString(), "")
-			val moduleImlFileName = project.gradle.rootProject.name + project.projectDir.toString().replace(project.gradle.rootProject.rootProject.projectDir.toString(), "").replace("/", ".") + ".iml"
-
-			inputFile = File(moduleImlDirectoryPath, moduleImlFileName)
-			outputFile = File(moduleImlDirectoryPath, moduleImlFileName)
-			module.jdkName = "Poetry (${project.name})"
-
-			module.sourceDirs.add(File(project.projectDir, "src/main/python"))
-			module.resourceDirs.add(File(project.projectDir, "src/main/resources"))
-			module.testSources.from(File(project.projectDir, "src/test/python"))
-			module.testResources.from(File(project.projectDir, "src/test/resources"))
-
+			shouldRunAfter(poetryInitEnvironment)
 		}
-		*/
+
+		project.tasks.register<PoetryIdeaSetupWorkspace>("PoetryIdeaSetupWorkspace") {
+			group = taskGroup
+			description = "Setup IntelliJ idea workspace for poetry project."
+			workspaceFile.set(extension.poetryIdeaSyncTask.workspaceFile)
+		}
+
 	}
 
 	/**
@@ -119,18 +120,22 @@ class PoetryPlugin : Plugin<Project> {
 		// Set up main sources directory convention
 		extension.poetryInitProjectStructureTask.mainSourcesDirectory.convention(extension.mainSourcesDirectory)
 		extension.poetryInitPyProjectTask.mainSourcesDirectory.convention(extension.mainSourcesDirectory)
+		extension.poetryIdeaSyncTask.mainSourcesDirectory.convention(with(extension.mainSourcesDirectory) { if (this.get().asFile.exists()) this.get() else null })
 
 		// Set up main resources directory convention
 		extension.poetryInitProjectStructureTask.mainResourcesDirectory.convention(extension.mainResourcesDirectory)
 		extension.poetryInitPyProjectTask.mainResourcesDirectory.convention(extension.mainResourcesDirectory)
+		extension.poetryIdeaSyncTask.mainResourcesDirectory.convention(with(extension.mainResourcesDirectory) { if (this.get().asFile.exists()) this.get() else null })
 
 		// Set up test sources directory convention
 		extension.poetryInitProjectStructureTask.testSourcesDirectory.convention(extension.testSourcesDirectory)
 		extension.poetryInitPyProjectTask.testSourcesDirectory.convention(extension.testSourcesDirectory)
+		extension.poetryIdeaSyncTask.testSourcesDirectory.convention(with(extension.testSourcesDirectory) { if (this.get().asFile.exists()) this.get() else null })
 
 		// Set up test resources directory convention
 		extension.poetryInitProjectStructureTask.testResourcesDirectory.convention(extension.testResourcesDirectory)
 		extension.poetryInitPyProjectTask.testResourcesDirectory.convention(extension.testResourcesDirectory)
+		extension.poetryIdeaSyncTask.testResourcesDirectory.convention(with(extension.testResourcesDirectory) { if (this.get().asFile.exists()) this.get() else null })
 
 		// Set up project name convention
 		extension.poetryInitProjectStructureTask.projectName.convention(extension.projectName)

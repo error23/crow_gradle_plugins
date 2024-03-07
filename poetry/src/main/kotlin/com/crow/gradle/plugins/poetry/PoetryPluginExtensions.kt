@@ -1,8 +1,10 @@
 package com.crow.gradle.plugins.poetry
 
+import java.io.File
 import javax.inject.Inject
 import org.gradle.api.Action
 import org.gradle.api.Project
+import org.gradle.api.file.RegularFile
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.tasks.Nested
 import org.gradle.kotlin.dsl.property
@@ -28,7 +30,7 @@ open class PoetryConfigInitTaskExtension @Inject constructor(objects: ObjectFact
 	: PoetryBaseExtension(objects) {
 
 	/** Poetry configuration file. */
-	val poetryTomlFile = objects.fileProperty().convention(project.layout.projectDirectory.file("pyproject.toml"))
+	val poetryTomlFile = objects.fileProperty().convention(project.layout.projectDirectory.file("poetry.toml"))
 
 	init {
 		description.convention("Initializes poetry configuration file.")
@@ -203,6 +205,63 @@ open class PoetryInitEnvironmentTaskExtension @Inject constructor(objects: Objec
 }
 
 /**
+ * Poetry plugin intellij idea sync task extension.
+ * Used to configure IntelliJ idea module and workspace in order to sync with poetry project.
+ */
+open class PoetryIdeaSyncTaskExtension @Inject constructor(objects: ObjectFactory, project: Project) {
+
+	/**
+	 * Module iml file.
+	 */
+	val moduleImlFile = objects.fileProperty().convention(findModuleImlFile(project))
+
+	/**
+	 * Workspace xml file.
+	 */
+	val workspaceFile = objects.fileProperty().convention(project.rootProject.layout.projectDirectory.dir(".idea").file("workspace.xml"))
+
+	/**
+	 * Poetry JDK name in IntelliJ idea.
+	 */
+	val jdkName = objects.property<String>().convention("Poetry (${project.name})")
+
+	/**
+	 * Overrides global directory containing main python sources.
+	 */
+	val mainSourcesDirectory = objects.directoryProperty().convention(with(project.layout.projectDirectory.dir("src/main/python")) { if (this.asFile.exists()) this else null })
+
+	/**
+	 * Overrides global directory containing main resources.
+	 */
+	val mainResourcesDirectory = objects.directoryProperty().convention(with(project.layout.projectDirectory.dir("src/main/resources")) { if (this.asFile.exists()) this else null })
+
+	/**
+	 * Overrides global directory containing test python sources.
+	 */
+	val testSourcesDirectory = objects.directoryProperty().convention(with(project.layout.projectDirectory.dir("src/test/python")) { if (this.asFile.exists()) this else null })
+
+	/**
+	 * Overrides global directory containing test resources.
+	 */
+	val testResourcesDirectory = objects.directoryProperty().convention(with(project.layout.projectDirectory.dir("src/test/resources")) { if (this.asFile.exists()) this else null })
+
+	/**
+	 * Function that finds module.xml file in intellij .idea folder.
+	 */
+	private fun findModuleImlFile(project: Project): RegularFile {
+
+		var moduleImlFile = project.layout.projectDirectory.dir(".idea").dir("modules").file(project.name + ".iml")
+
+		if (project.projectDir != project.rootProject.projectDir) {
+			moduleImlFile = project.rootProject.layout.projectDirectory.dir(".idea").dir("modules").dir(project.projectDir.relativeTo(project.rootProject.projectDir).toString())
+			  .file(project.rootProject.name + "." + project.projectDir.relativeTo(project.rootProject.projectDir).toString().replace(File.separatorChar, '.') + ".iml")
+		}
+
+		return moduleImlFile
+	}
+}
+
+/**
  * Poetry plugin extension.
  * Used to configure poetry plugin tasks.
  */
@@ -304,6 +363,12 @@ abstract class PoetryExtension @Inject constructor(objects: ObjectFactory, proje
 	@get:Nested
 	abstract val poetryInitEnvironmentTask: PoetryInitEnvironmentTaskExtension
 
+	/**
+	 * Intellij idea sync task specific configuration.
+	 */
+	@get:Nested
+	abstract val poetryIdeaSyncTask: PoetryIdeaSyncTaskExtension
+
 	fun poetryConfigInitTask(action: Action<in PoetryConfigInitTaskExtension>) {
 		action.execute(poetryConfigInitTask)
 	}
@@ -322,5 +387,9 @@ abstract class PoetryExtension @Inject constructor(objects: ObjectFactory, proje
 
 	fun poetryInitEnvironmentTask(action: Action<in PoetryInitEnvironmentTaskExtension>) {
 		action.execute(poetryInitEnvironmentTask)
+	}
+
+	fun poetryIdeaSyncTask(action: Action<in PoetryIdeaSyncTaskExtension>) {
+		action.execute(poetryIdeaSyncTask)
 	}
 }
