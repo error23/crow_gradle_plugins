@@ -16,3 +16,8 @@ gradlePlugin {
 		}
 	}
 }
+
+dependencies {
+	implementation "org.dom4j:dom4j:$dom4jVersion"
+	implementation "jaxen:jaxen:$jaxenVersion"
+}
