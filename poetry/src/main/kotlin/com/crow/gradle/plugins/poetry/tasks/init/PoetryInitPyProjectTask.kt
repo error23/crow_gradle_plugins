@@ -10,6 +10,7 @@ import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
+import org.intellij.lang.annotations.Language
 
 /**
  * Task that initializes pyproject.toml file.
@@ -101,6 +102,7 @@ abstract class PoetryInitPyProjectTask : PoetryBaseTask() {
 	@TaskAction
 	fun execute() {
 
+		@Language("toml")
 		val firstPart = """
 			[tool.poetry]
 			name = "${projectName.get()}"
@@ -111,6 +113,7 @@ abstract class PoetryInitPyProjectTask : PoetryBaseTask() {
 			readme = "${readmeFile.get().asFile.relativeTo(project.projectDir)}"
 			""".trimIndent()
 
+		@Language("toml")
 		val thirdPart = """ 
 			
 			packages = [
