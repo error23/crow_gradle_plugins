@@ -1,5 +1,6 @@
 package com.crow.gradle.plugins.poetry
 
+import com.crow.gradle.plugins.poetry.tasks.PoetryVersionTask
 import com.crow.gradle.plugins.poetry.tasks.idea.PoetryIdeaSetupWorkspace
 import com.crow.gradle.plugins.poetry.tasks.idea.PoetryIdeaSyncModuleTask
 import com.crow.gradle.plugins.poetry.tasks.init.PoetryConfigInitTask
@@ -58,6 +59,7 @@ class PoetryPlugin : Plugin<Project> {
 			description = extension.poetryInitPyProjectTask.description.get()
 			poetryCmd.set(extension.poetryInitPyProjectTask.poetryCmd)
 			projectName.set(extension.poetryInitPyProjectTask.projectName)
+			projectVersion.set(extension.poetryInitPyProjectTask.projectVersion)
 			projectDescription.set(extension.poetryInitPyProjectTask.projectDescription)
 			projectAuthor.set(extension.poetryInitPyProjectTask.projectAuthor)
 			projectHomepage.set(extension.poetryInitPyProjectTask.projectHomepage)
@@ -101,6 +103,13 @@ class PoetryPlugin : Plugin<Project> {
 			workspaceFile.set(extension.poetryIdeaSyncTask.workspaceFile)
 		}
 
+		project.tasks.register<PoetryVersionTask>("poetryVersion") {
+			description = "Set poetry version."
+			poetryCmd.set(extension.poetryCmd)
+			group = taskGroup
+			projectVersion.set(extension.projectVersion)
+		}
+
 	}
 
 	/**
@@ -141,6 +150,9 @@ class PoetryPlugin : Plugin<Project> {
 		extension.poetryInitProjectStructureTask.projectName.convention(extension.projectName)
 		extension.poetryInitReadMeTask.projectName.convention(extension.projectName)
 		extension.poetryInitPyProjectTask.projectName.convention(extension.projectName)
+
+		// Set up project version convention
+		extension.poetryInitPyProjectTask.projectVersion.convention(extension.projectVersion)
 
 		// Set up project description convention
 		extension.poetryInitReadMeTask.projectDescription.convention(extension.projectDescription)

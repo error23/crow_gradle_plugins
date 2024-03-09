@@ -23,6 +23,12 @@ abstract class PoetryInitPyProjectTask : PoetryBaseTask() {
 	abstract val projectName: Property<String>
 
 	/**
+	 * Project version.
+	 */
+	@get:Input
+	abstract val projectVersion: Property<String>
+
+	/**
 	 * Python project description.
 	 */
 	@get:Input
@@ -98,7 +104,7 @@ abstract class PoetryInitPyProjectTask : PoetryBaseTask() {
 		val firstPart = """
 			[tool.poetry]
 			name = "${projectName.get()}"
-			version = "0.0.1"
+			version = "${projectVersion.get()}"
 			description = "${projectDescription.get()}"
 			authors = ["${projectAuthor.get()}"]
 			maintainers = ["${projectAuthor.get()}"]

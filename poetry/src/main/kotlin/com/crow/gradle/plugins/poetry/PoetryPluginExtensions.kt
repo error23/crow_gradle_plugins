@@ -121,6 +121,11 @@ open class PoetryInitPyProjectTaskExtension @Inject constructor(objects: ObjectF
 	val projectName = objects.property<String>().convention(project.name)
 
 	/**
+	 * Overrides global project version.
+	 */
+	val projectVersion = objects.property<String>().convention(project.version.toString().replace("-SNAPSHOT", "a0"))
+
+	/**
 	 * Overrides global project description.
 	 */
 	val projectDescription = objects.property<String>().convention(project.description?.removeSurrounding("'"))
@@ -303,6 +308,12 @@ abstract class PoetryExtension @Inject constructor(objects: ObjectFactory, proje
 	 * @see [PoetryInitReadMeTaskExtension.projectName] and [PoetryInitPyProjectTaskExtension.projectName]
 	 */
 	val projectName = objects.property<String>().convention(project.name)
+
+	/**
+	 * Global project version.
+	 * @see [PoetryInitPyProjectTaskExtension.projectVersion]
+	 */
+	val projectVersion = objects.property<String>().convention(project.version.toString().replace("-SNAPSHOT", "a0"))
 
 	/**
 	 * Global project description.
