@@ -24,7 +24,7 @@ open class PoetryBaseExtension @Inject constructor(objects: ObjectFactory) {
 
 /**
  * Poetry plugin config init task extension.
- * Used to configure [com.crow.gradle.plugins.poetry.tasks.PoetryConfigInitTask] task.
+ * Used to configure [com.crow.gradle.plugins.poetry.tasks.init.PoetryConfigInitTask] task.
  */
 open class PoetryConfigInitTaskExtension @Inject constructor(objects: ObjectFactory, project: Project)
 	: PoetryBaseExtension(objects) {
@@ -40,7 +40,7 @@ open class PoetryConfigInitTaskExtension @Inject constructor(objects: ObjectFact
 
 /**
  * Poetry plugin init project structure task extension.
- * Used to configure [com.crow.gradle.plugins.poetry.tasks.PoetryInitProjectStructureTask] task.
+ * Used to configure [com.crow.gradle.plugins.poetry.tasks.init.PoetryInitProjectStructureTask] task.
  */
 open class PoetryInitProjectStructureTaskExtension @Inject constructor(objects: ObjectFactory, project: Project)
 	: PoetryBaseExtension(objects) {
@@ -82,7 +82,7 @@ open class PoetryInitProjectStructureTaskExtension @Inject constructor(objects: 
 
 /**
  * Poetry plugin readme task extension.
- * Used to configure [com.crow.gradle.plugins.poetry.tasks.PoetryInitReadMeTask] task.
+ * Used to configure [com.crow.gradle.plugins.poetry.tasks.init.PoetryInitReadMeTask] task.
  */
 open class PoetryInitReadMeTaskExtension @Inject constructor(objects: ObjectFactory, project: Project)
 	: PoetryBaseExtension(objects) {
@@ -110,7 +110,7 @@ open class PoetryInitReadMeTaskExtension @Inject constructor(objects: ObjectFact
 
 /**
  * Poetry plugin init pyproject task extension.
- * Used to configure [com.crow.gradle.plugins.poetry.tasks.PoetryInitPyProjectTask] task.
+ * Used to configure [com.crow.gradle.plugins.poetry.tasks.init.PoetryInitPyProjectTask] task.
  */
 open class PoetryInitPyProjectTaskExtension @Inject constructor(objects: ObjectFactory, project: Project)
 	: PoetryBaseExtension(objects) {
@@ -183,7 +183,7 @@ open class PoetryInitPyProjectTaskExtension @Inject constructor(objects: ObjectF
 
 /**
  * Poetry plugin init environment task extension.
- * Used to configure [com.crow.gradle.plugins.poetry.tasks.PoetryInitEnvironmentTask] task.
+ * Used to configure [com.crow.gradle.plugins.poetry.tasks.init.PoetryInitEnvironmentTask] task.
  */
 open class PoetryInitEnvironmentTaskExtension @Inject constructor(objects: ObjectFactory, project: Project)
 	: PoetryBaseExtension(objects) {
@@ -329,35 +329,35 @@ abstract class PoetryExtension @Inject constructor(objects: ObjectFactory, proje
 	val projectPythonVersion = objects.property<String>()
 
 	/**
-	 * [com.crow.gradle.plugins.poetry.tasks.PoetryConfigInitTask]
+	 * [com.crow.gradle.plugins.poetry.tasks.init.PoetryConfigInitTask]
 	 * specific configuration.
 	 */
 	@get:Nested
 	abstract val poetryConfigInitTask: PoetryConfigInitTaskExtension
 
 	/**
-	 * [com.crow.gradle.plugins.poetry.tasks.PoetryInitProjectStructureTask]
+	 * [com.crow.gradle.plugins.poetry.tasks.init.PoetryInitProjectStructureTask]
 	 * specific configuration.
 	 */
 	@get:Nested
 	abstract val poetryInitProjectStructureTask: PoetryInitProjectStructureTaskExtension
 
 	/**
-	 * [com.crow.gradle.plugins.poetry.tasks.PoetryInitReadMeTask]
+	 * [com.crow.gradle.plugins.poetry.tasks.init.PoetryInitReadMeTask]
 	 * specific configuration.
 	 */
 	@get:Nested
 	abstract val poetryInitReadMeTask: PoetryInitReadMeTaskExtension
 
 	/**
-	 * [com.crow.gradle.plugins.poetry.tasks.PoetryInitPyProjectTask]
+	 * [com.crow.gradle.plugins.poetry.tasks.init.PoetryInitPyProjectTask]
 	 * specific configuration.
 	 */
 	@get:Nested
 	abstract val poetryInitPyProjectTask: PoetryInitPyProjectTaskExtension
 
 	/**
-	 * [com.crow.gradle.plugins.poetry.tasks.PoetryInitEnvironmentTask]
+	 * [com.crow.gradle.plugins.poetry.tasks.init.PoetryInitEnvironmentTask]
 	 * specific configuration.
 	 */
 	@get:Nested

@@ -1,12 +1,12 @@
 package com.crow.gradle.plugins.poetry
 
-import com.crow.gradle.plugins.poetry.tasks.PoetryConfigInitTask
-import com.crow.gradle.plugins.poetry.tasks.PoetryInitEnvironmentTask
-import com.crow.gradle.plugins.poetry.tasks.PoetryInitProjectStructureTask
-import com.crow.gradle.plugins.poetry.tasks.PoetryInitPyProjectTask
-import com.crow.gradle.plugins.poetry.tasks.PoetryInitReadMeTask
 import com.crow.gradle.plugins.poetry.tasks.idea.PoetryIdeaSetupWorkspace
 import com.crow.gradle.plugins.poetry.tasks.idea.PoetryIdeaSyncModuleTask
+import com.crow.gradle.plugins.poetry.tasks.init.PoetryConfigInitTask
+import com.crow.gradle.plugins.poetry.tasks.init.PoetryInitEnvironmentTask
+import com.crow.gradle.plugins.poetry.tasks.init.PoetryInitProjectStructureTask
+import com.crow.gradle.plugins.poetry.tasks.init.PoetryInitPyProjectTask
+import com.crow.gradle.plugins.poetry.tasks.init.PoetryInitReadMeTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.create

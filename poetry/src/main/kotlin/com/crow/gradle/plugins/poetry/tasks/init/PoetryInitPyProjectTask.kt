@@ -1,5 +1,6 @@
-package com.crow.gradle.plugins.poetry.tasks
+package com.crow.gradle.plugins.poetry.tasks.init
 
+import com.crow.gradle.plugins.poetry.tasks.PoetryBaseTask
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
