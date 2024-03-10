@@ -335,9 +335,15 @@ abstract class PoetryExtension @Inject constructor(objects: ObjectFactory, proje
 
 	/**
 	 * Global python project version.
-	 * @see [PoetryInitPyProjectTaskExtension.projectPythonVersion]
+	 * @see [PoetryInitPyProjectTaskExtension.projectPythonVersion] and [PoetryInitEnvironmentTaskExtension.projectPythonVersion]
 	 */
 	val projectPythonVersion = objects.property<String>()
+
+	/**
+	 * Global release flag.
+	 * If true gradle will replace all local project dependencies with their online versions.
+	 */
+	val release = objects.property<Boolean>().convention(false)
 
 	/**
 	 * [com.crow.gradle.plugins.poetry.tasks.init.PoetryConfigInitTask]
