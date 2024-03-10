@@ -1,5 +1,8 @@
 package com.crow.gradle.plugins.poetry
 
+import com.crow.gradle.plugins.poetry.tasks.PoetryBuildTask
+import com.crow.gradle.plugins.poetry.tasks.PoetryTestTask
+import com.crow.gradle.plugins.poetry.tasks.PoetryUpdateTask
 import com.crow.gradle.plugins.poetry.tasks.PoetryVersionTask
 import com.crow.gradle.plugins.poetry.tasks.idea.PoetryIdeaSetupWorkspace
 import com.crow.gradle.plugins.poetry.tasks.idea.PoetryIdeaSyncModuleTask
@@ -10,6 +13,7 @@ import com.crow.gradle.plugins.poetry.tasks.init.PoetryInitPyProjectTask
 import com.crow.gradle.plugins.poetry.tasks.init.PoetryInitReadMeTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.register
 
@@ -26,11 +30,103 @@ class PoetryPlugin : Plugin<Project> {
 		// Apply dependency plugins
 		project.plugins.apply("base")
 
-		// Create linux packaging extension
+		// Create configuration for distribution artifacts
+		val implementationConfiguration = project.configurations.create("pythonImplementation")
+		implementationConfiguration.isCanBeResolved = true
+		implementationConfiguration.isCanBeConsumed = false
+
+		val archivesConfiguration = project.configurations.create("pythonArchives")
+		archivesConfiguration.isCanBeResolved = false
+		archivesConfiguration.isCanBeConsumed = true
+
+		// Create poetry extension
 		val extension = project.extensions.create<PoetryExtension>("poetryConfig")
 		setupExtension(extension)
 
 		// Register tasks
+		val poetryInitEnvironment = registerPoetryInitEnvironmentTasks(project, extension)
+		registerPoetryIdeaSyncTasks(project, extension.poetryIdeaSyncTask, poetryInitEnvironment)
+		val poetryBuild = registerPoetryGeneralBuildTasks(project, extension)
+
+		// Add artifacts to archives configuration
+		project.artifacts.add(archivesConfiguration.name, poetryBuild.get().buildDirectory) {
+			this.builtBy("poetryBuild")
+		}
+	}
+
+	/**
+	 * Register poetry general build tasks.
+	 *
+	 * @param project to register tasks
+	 * @param extension to use
+	 * @return poetry build task
+	 */
+	private fun registerPoetryGeneralBuildTasks(project: Project, extension: PoetryExtension): TaskProvider<PoetryBuildTask> {
+
+		val poetryVersion = project.tasks.register<PoetryVersionTask>("poetryVersion") {
+			description = extension.poetryVersionTask.description.get()
+			poetryCmd.set(extension.poetryVersionTask.poetryCmd)
+			projectVersion.set(extension.poetryVersionTask.projectVersion)
+			pyprojectFile.set(extension.poetryVersionTask.pyprojectFile)
+
+		}
+
+		val poetryUpdate = project.tasks.register<PoetryUpdateTask>("poetryUpdate") {
+			group = taskGroup
+			description = extension.poetryUpdateTask.description.get()
+			poetryCmd.set(extension.poetryUpdateTask.poetryCmd)
+			poetryExtraArgs.set(extension.poetryUpdateTask.poetryExtraArgs)
+			release.set(extension.poetryUpdateTask.release)
+			pyprojectFile.set(extension.poetryUpdateTask.pyprojectFile)
+			poetryLockFile.set(extension.poetryUpdateTask.poetryLockFile)
+
+			dependsOn(poetryVersion)
+		}
+
+		val poetryTest = project.tasks.register<PoetryTestTask>("poetryTest") {
+			group = "verification"
+			description = extension.poetryTestTask.description.get()
+			poetryCmd.set(extension.poetryTestTask.poetryCmd)
+			testCmd.set(extension.poetryTestTask.testCmd)
+			testCmdExtraArgs.set(extension.poetryTestTask.testCmdExtraArgs)
+			sourceFiles.from(extension.poetryTestTask.sourceFiles)
+			testReportArgument.set(extension.poetryTestTask.testReportArgument)
+			testReport.set(extension.poetryTestTask.testReport)
+
+			dependsOn(poetryUpdate)
+		}
+		project.tasks.named("check").configure {
+			dependsOn(poetryTest)
+		}
+
+		val poetryBuild = project.tasks.register<PoetryBuildTask>("poetryBuild") {
+			group = "build"
+			description = extension.poetryBuildTask.description.get()
+			poetryCmd.set(extension.poetryBuildTask.poetryCmd)
+			poetryExtraArgs.set(extension.poetryBuildTask.poetryExtraArgs)
+			sourceFiles.from(extension.poetryBuildTask.sourceFiles)
+			buildDirectory.set(extension.poetryBuildTask.buildDirectory)
+
+			dependsOn(poetryUpdate)
+		}
+
+		project.tasks.named("assemble").configure {
+			dependsOn(poetryBuild)
+		}
+
+		return poetryBuild
+
+	}
+
+	/**
+	 * Register poetry init environment tasks.
+	 *
+	 * @param project to register tasks
+	 * @param extension to use
+	 * @return poetry init environment task
+	 */
+	private fun registerPoetryInitEnvironmentTasks(project: Project, extension: PoetryExtension): TaskProvider<PoetryInitEnvironmentTask> {
+
 		val poetryConfigInit = project.tasks.register<PoetryConfigInitTask>("poetryConfigInit") {
 			description = extension.poetryConfigInitTask.description.get()
 			poetryCmd.set(extension.poetryConfigInitTask.poetryCmd)
@@ -85,14 +181,27 @@ class PoetryPlugin : Plugin<Project> {
 			dependsOn(poetryConfigInit, poetryInitProjectStructure, poetryInitReadMe, poetryInitPyProject)
 		}
 
+		return poetryInitEnvironment
+
+	}
+
+	/**
+	 * Register poetry idea sync tasks.
+	 *
+	 * @param project to register tasks
+	 * @param poetryIdeaSyncTaskExtension to use
+	 * @param poetryInitEnvironment to depend on
+	 */
+	private fun registerPoetryIdeaSyncTasks(project: Project, poetryIdeaSyncTaskExtension: PoetryIdeaSyncTaskExtension, poetryInitEnvironment: TaskProvider<PoetryInitEnvironmentTask>) {
+
 		project.tasks.register<PoetryIdeaSyncModuleTask>("PoetryIdeaSyncModule") {
 			description = "Sync idea module.iml file with poetry project."
-			ideaModuleFile.set(extension.poetryIdeaSyncTask.moduleImlFile)
-			jdkName.set(extension.poetryIdeaSyncTask.jdkName)
-			mainSourcesDirectory.set(extension.poetryIdeaSyncTask.mainSourcesDirectory)
-			mainResourcesDirectory.set(extension.poetryIdeaSyncTask.mainResourcesDirectory)
-			testSourcesDirectory.set(extension.poetryIdeaSyncTask.testSourcesDirectory)
-			testResourcesDirectory.set(extension.poetryIdeaSyncTask.testResourcesDirectory)
+			ideaModuleFile.set(poetryIdeaSyncTaskExtension.moduleImlFile)
+			jdkName.set(poetryIdeaSyncTaskExtension.jdkName)
+			mainSourcesDirectory.set(poetryIdeaSyncTaskExtension.mainSourcesDirectory)
+			mainResourcesDirectory.set(poetryIdeaSyncTaskExtension.mainResourcesDirectory)
+			testSourcesDirectory.set(poetryIdeaSyncTaskExtension.testSourcesDirectory)
+			testResourcesDirectory.set(poetryIdeaSyncTaskExtension.testResourcesDirectory)
 
 			shouldRunAfter(poetryInitEnvironment)
 		}
@@ -100,16 +209,8 @@ class PoetryPlugin : Plugin<Project> {
 		project.tasks.register<PoetryIdeaSetupWorkspace>("PoetryIdeaSetupWorkspace") {
 			group = taskGroup
 			description = "Setup IntelliJ idea workspace for poetry project."
-			workspaceFile.set(extension.poetryIdeaSyncTask.workspaceFile)
+			workspaceFile.set(poetryIdeaSyncTaskExtension.workspaceFile)
 		}
-
-		project.tasks.register<PoetryVersionTask>("poetryVersion") {
-			description = "Set poetry version."
-			poetryCmd.set(extension.poetryCmd)
-			group = taskGroup
-			projectVersion.set(extension.projectVersion)
-		}
-
 	}
 
 	/**
@@ -125,6 +226,10 @@ class PoetryPlugin : Plugin<Project> {
 		extension.poetryInitReadMeTask.poetryCmd.convention(extension.poetryCmd)
 		extension.poetryInitPyProjectTask.poetryCmd.convention(extension.poetryCmd)
 		extension.poetryInitEnvironmentTask.poetryCmd.convention(extension.poetryCmd)
+		extension.poetryVersionTask.poetryCmd.convention(extension.poetryCmd)
+		extension.poetryUpdateTask.poetryCmd.convention(extension.poetryCmd)
+		extension.poetryTestTask.poetryCmd.convention(extension.poetryCmd)
+		extension.poetryBuildTask.poetryCmd.convention(extension.poetryCmd)
 
 		// Set up main sources directory convention
 		extension.poetryInitProjectStructureTask.mainSourcesDirectory.convention(extension.mainSourcesDirectory)
@@ -153,6 +258,7 @@ class PoetryPlugin : Plugin<Project> {
 
 		// Set up project version convention
 		extension.poetryInitPyProjectTask.projectVersion.convention(extension.projectVersion)
+		extension.poetryVersionTask.projectVersion.convention(extension.projectVersion)
 
 		// Set up project description convention
 		extension.poetryInitReadMeTask.projectDescription.convention(extension.projectDescription)
@@ -168,6 +274,14 @@ class PoetryPlugin : Plugin<Project> {
 		// Set up project python version convention
 		extension.poetryInitPyProjectTask.projectPythonVersion.convention(extension.projectPythonVersion)
 		extension.poetryInitEnvironmentTask.projectPythonVersion.convention(extension.projectPythonVersion)
+
+		// Set up pyproject file convention
+		extension.poetryInitPyProjectTask.pyprojectFile.convention(extension.pyprojectFile)
+		extension.poetryVersionTask.pyprojectFile.convention(extension.pyprojectFile)
+		extension.poetryUpdateTask.pyprojectFile.convention(extension.pyprojectFile)
+
+		// Set up release convention
+		extension.poetryUpdateTask.release.convention(extension.release)
 
 	}
 }

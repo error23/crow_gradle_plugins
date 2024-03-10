@@ -364,6 +364,35 @@ open class PoetryTestTaskExtension @Inject constructor(objects: ObjectFactory, p
 }
 
 /**
+ * Poetry plugin build task extension.
+ * Used to configure [com.crow.gradle.plugins.poetry.tasks.PoetryBuildTask] task.
+ */
+open class PoetryBuildTaskExtension @Inject constructor(objects: ObjectFactory, project: Project)
+	: PoetryBaseExtension(objects) {
+
+	/**
+	 *  Poetry command extra arguments.
+	 */
+	val poetryExtraArgs = objects.setProperty<String>()
+
+	/**
+	 * Source files to track changements.
+	 */
+	val sourceFiles = objects.fileCollection().from(project.layout.projectDirectory.dir("src/main").asFileTree.matching { include("**/*.py") })
+
+	/**
+	 * Directory containing build artifacts.
+	 */
+	val buildDirectory = objects.directoryProperty().convention(project.layout.buildDirectory.dir("dist"))
+
+	init {
+		description.convention("Builds poetry package.")
+		poetryCmd.convention("poetry")
+	}
+
+}
+
+/**
  * Poetry plugin extension.
  * Used to configure poetry plugin tasks.
  */
@@ -510,6 +539,13 @@ abstract class PoetryExtension @Inject constructor(objects: ObjectFactory, proje
 	@get:Nested
 	abstract val poetryTestTask: PoetryTestTaskExtension
 
+	/**
+	 * [com.crow.gradle.plugins.poetry.tasks.PoetryBuildTask]
+	 * specific configuration.
+	 */
+	@get:Nested
+	abstract val poetryBuildTask: PoetryBuildTaskExtension
+
 	fun poetryConfigInitTask(action: Action<in PoetryConfigInitTaskExtension>) {
 		action.execute(poetryConfigInitTask)
 	}
@@ -544,5 +580,9 @@ abstract class PoetryExtension @Inject constructor(objects: ObjectFactory, proje
 
 	fun poetryTestTask(action: Action<in PoetryTestTaskExtension>) {
 		action.execute(poetryTestTask)
+	}
+
+	fun poetryBuildTask(action: Action<in PoetryBuildTaskExtension>) {
+		action.execute(poetryBuildTask)
 	}
 }
