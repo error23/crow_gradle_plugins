@@ -8,7 +8,7 @@ Since poetry doesn't know how to handle local dependencies, this plugin will use
 ```groovy
 plugins {
 	plugins {
-		id 'com.crow.gradle.plugins.poetry' version '1.2.1'
+		id 'com.crow.gradle.plugins.poetry' version '1.3.0'
 	}
 
 	poetryConfig {
@@ -73,7 +73,7 @@ All values presented here are default values set by plugin but in case you need 
 
 ```groovy
 plugins {
-	id 'com.crow.gradle.plugins.poetry' version '1.2.1'
+	id 'com.crow.gradle.plugins.poetry' version '1.3.0'
 }
 
 poetryConfig {

@@ -8,7 +8,7 @@ If you are using gettext-commons library with java normally you would just need 
 
 ```groovy
 plugins {
-	id 'com.crow.gradle.plugins.gettext' version '1.2.1'
+	id 'com.crow.gradle.plugins.gettext' version '1.3.0'
 }
 ```
 
