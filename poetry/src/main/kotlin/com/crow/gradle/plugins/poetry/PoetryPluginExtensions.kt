@@ -339,12 +339,17 @@ open class PoetryTestTaskExtension @Inject constructor(objects: ObjectFactory, p
 	/**
 	 * Test command extra arguments.
 	 */
-	val testCmdExtraArgs = objects.setProperty<String>()
+	val testCmdExtraArgs = objects.setProperty<String>().convention(setOf("--color=yes"))
 
 	/**
 	 * Source files to track changements.
 	 */
 	val sourceFiles = objects.fileCollection().from(project.layout.projectDirectory.dir("src/").asFileTree.matching { include("**/*.py") })
+
+	/**
+	 * Test report argument option to generate test report.
+	 */
+	val testReportArgument = objects.property<String>().convention("--html=")
 
 	/**
 	 * Test report output file.

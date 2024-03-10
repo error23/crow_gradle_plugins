@@ -41,6 +41,12 @@ abstract class PoetryTestTask : PoetryBaseTask() {
 	abstract val sourceFiles: ConfigurableFileCollection
 
 	/**
+	 * Test report argument option to generate test report.
+	 */
+	@get:Input
+	abstract val testReportArgument: Property<String>
+
+	/**
 	 * Test report output file.
 	 */
 	@get:OutputFile
@@ -51,7 +57,7 @@ abstract class PoetryTestTask : PoetryBaseTask() {
 
 		runPoetry(setOf("update", "--sync", "--with", "test"))
 
-		val args = mutableSetOf("run", testCmd.get(), "--html=${testReport.get().asFile.absolutePath}")
+		val args = mutableSetOf("run", testCmd.get(), testReportArgument.get() + testReport.get().asFile.absolutePath)
 		if (testCmdExtraArgs.isPresent) args += testCmdExtraArgs.get()
 		runPoetry(args)
 	}
