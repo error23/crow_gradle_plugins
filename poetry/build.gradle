@@ -1,0 +1,23 @@
+plugins {
+	id "org.gradle.kotlin.kotlin-dsl" version "$kotlinDslVersion"
+	id "com.gradle.plugin-publish" version "$gradlePluginPublishVersion"
+}
+
+gradlePlugin {
+	website.set(projectUrl)
+	vcsUrl.set(projectUrl)
+	plugins {
+		'poetry' {
+			id = "${group}.poetry"
+			implementationClass = "${group}.poetry.PoetryPlugin"
+			displayName = 'Poetry plugin'
+			description = 'Manage Python projects with Poetry'
+			tags.addAll("Python", "Poetry", "Project", "DSL")
+		}
+	}
+}
+
+dependencies {
+	implementation "org.dom4j:dom4j:$dom4jVersion"
+	implementation "jaxen:jaxen:$jaxenVersion"
+}

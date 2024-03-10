@@ -27,7 +27,7 @@ Plugin used to create packages for different linux distributions.
 
 ```groovy
 plugins {
-	id 'com.crow.gradle.plugins.linux-packaging' version '1.2.1'
+	id 'com.crow.gradle.plugins.linux-packaging' version '1.3.0'
 }
 
 linuxPackagingConfig {
