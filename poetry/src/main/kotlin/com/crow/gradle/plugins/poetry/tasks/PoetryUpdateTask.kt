@@ -2,6 +2,7 @@ package com.crow.gradle.plugins.poetry.tasks
 
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Optional
@@ -12,6 +13,12 @@ import org.gradle.api.tasks.TaskAction
  * Task that updates poetry dependencies.
  */
 abstract class PoetryUpdateTask : PoetryBaseTask() {
+
+	/**
+	 *  Poetry command extra arguments.
+	 */
+	@get:[Input Optional]
+	abstract val poetryExtraArgs: SetProperty<String>
 
 	/**
 	 * Release flag.
@@ -34,7 +41,10 @@ abstract class PoetryUpdateTask : PoetryBaseTask() {
 	@TaskAction
 	fun execute() {
 		if (release.isPresent && release.get()) setUpLocalPackagesToRelease()
-		runPoetry(setOf("update"))
+
+		val args = mutableSetOf("update")
+		if (poetryExtraArgs.isPresent) args += poetryExtraArgs.get()
+		runPoetry(args)
 	}
 
 	/**

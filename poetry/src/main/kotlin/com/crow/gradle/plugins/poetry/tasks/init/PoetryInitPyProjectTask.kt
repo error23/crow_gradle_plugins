@@ -129,6 +129,7 @@ abstract class PoetryInitPyProjectTask : PoetryBaseTask() {
 			
 			[tool.poetry.group.test.dependencies]
 			pytest = "*"
+			pytest-hrml = "*"
 			
 			[tool.pytest.ini_options]
 			testpaths = ["${testSourcesDirectory.get().asFile.relativeTo(project.projectDir)}", "${testResourcesDirectory.get().asFile.relativeTo(project.projectDir)}"]

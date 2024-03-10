@@ -8,6 +8,7 @@ import org.gradle.api.file.RegularFile
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.tasks.Nested
 import org.gradle.kotlin.dsl.property
+import org.gradle.kotlin.dsl.setProperty
 
 /**
  * Poetry plugin base extension. Used to configure poetry plugin tasks.
@@ -298,6 +299,11 @@ open class PoetryUpdateTaskExtension @Inject constructor(objects: ObjectFactory,
 	: PoetryBaseExtension(objects) {
 
 	/**
+	 * Poetry update extra arguments.
+	 */
+	val poetryExtraArgs = objects.setProperty<String>()
+
+	/**
 	 * Overrides global release flag.
 	 */
 	val release = objects.property<Boolean>().convention(false)
@@ -316,6 +322,40 @@ open class PoetryUpdateTaskExtension @Inject constructor(objects: ObjectFactory,
 		description.convention("Updates poetry dependencies.")
 		poetryCmd.convention("poetry")
 	}
+}
+
+/**
+ * Poetry plugin test task extension.
+ * Used to configure [com.crow.gradle.plugins.poetry.tasks.PoetryTestTask] task.
+ */
+open class PoetryTestTaskExtension @Inject constructor(objects: ObjectFactory, project: Project)
+	: PoetryBaseExtension(objects) {
+
+	/**
+	 * Python test command.
+	 */
+	val testCmd = objects.property<String>().convention("pytest")
+
+	/**
+	 * Test command extra arguments.
+	 */
+	val testCmdExtraArgs = objects.setProperty<String>()
+
+	/**
+	 * Source files to track changements.
+	 */
+	val sourceFiles = objects.fileCollection().from(project.layout.projectDirectory.dir("src/").asFileTree.matching { include("**/*.py") })
+
+	/**
+	 * Test report output file.
+	 */
+	val testReport = objects.fileProperty().convention(project.layout.buildDirectory.file("reports/tests/test.html"))
+
+	init {
+		description.convention("Runs poetry tests.")
+		poetryCmd.convention("poetry")
+	}
+
 }
 
 /**
@@ -458,6 +498,13 @@ abstract class PoetryExtension @Inject constructor(objects: ObjectFactory, proje
 	@get:Nested
 	abstract val poetryUpdateTask: PoetryUpdateTaskExtension
 
+	/**
+	 * [com.crow.gradle.plugins.poetry.tasks.PoetryTestTask]
+	 * specific configuration.
+	 */
+	@get:Nested
+	abstract val poetryTestTask: PoetryTestTaskExtension
+
 	fun poetryConfigInitTask(action: Action<in PoetryConfigInitTaskExtension>) {
 		action.execute(poetryConfigInitTask)
 	}
@@ -488,5 +535,9 @@ abstract class PoetryExtension @Inject constructor(objects: ObjectFactory, proje
 
 	fun poetryUpdateTask(action: Action<in PoetryUpdateTaskExtension>) {
 		action.execute(poetryUpdateTask)
+	}
+
+	fun poetryTestTask(action: Action<in PoetryTestTaskExtension>) {
+		action.execute(poetryTestTask)
 	}
 }
