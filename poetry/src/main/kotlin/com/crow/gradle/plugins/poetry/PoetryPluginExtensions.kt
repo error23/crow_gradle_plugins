@@ -176,7 +176,7 @@ open class PoetryInitPyProjectTaskExtension @Inject constructor(objects: ObjectF
 	val testResourcesDirectory = objects.directoryProperty().convention(project.layout.projectDirectory.dir("src/test/resources"))
 
 	/**
-	 * Output pyproject.toml file.
+	 * Overrides global pyproject.toml file.
 	 */
 	val pyprojectFile = objects.fileProperty().convention(project.layout.projectDirectory.file("pyproject.toml"))
 
@@ -267,6 +267,58 @@ open class PoetryIdeaSyncTaskExtension @Inject constructor(objects: ObjectFactor
 }
 
 /**
+ * Poetry plugin version task extension.
+ * Used to configure [com.crow.gradle.plugins.poetry.tasks.PoetryVersionTask] task.
+ */
+open class PoetryVersionTaskExtension @Inject constructor(objects: ObjectFactory, project: Project)
+	: PoetryBaseExtension(objects) {
+
+	/**
+	 * Overrides global project version.
+	 */
+	val projectVersion = objects.property<String>().convention(project.version.toString().replace("-SNAPSHOT", "a0"))
+
+	/**
+	 * Overrides global pyproject.toml file.
+	 */
+	val pyprojectFile = objects.fileProperty().convention(project.layout.projectDirectory.file("pyproject.toml"))
+
+	init {
+		description.convention("Sets poetry project version.")
+		poetryCmd.convention("poetry")
+
+	}
+}
+
+/**
+ * Poetry plugin update task extension.
+ * Used to configure [com.crow.gradle.plugins.poetry.tasks.PoetryUpdateTask] task.
+ */
+open class PoetryUpdateTaskExtension @Inject constructor(objects: ObjectFactory, project: Project)
+	: PoetryBaseExtension(objects) {
+
+	/**
+	 * Overrides global release flag.
+	 */
+	val release = objects.property<Boolean>().convention(false)
+
+	/**
+	 * Overrides global pyproject.toml file.
+	 */
+	val pyprojectFile = objects.fileProperty().convention(project.layout.projectDirectory.file("pyproject.toml"))
+
+	/**
+	 * Poetry.lock file.
+	 */
+	val poetryLockFile = objects.fileProperty().convention(project.layout.projectDirectory.file("poetry.lock"))
+
+	init {
+		description.convention("Updates poetry dependencies.")
+		poetryCmd.convention("poetry")
+	}
+}
+
+/**
  * Poetry plugin extension.
  * Used to configure poetry plugin tasks.
  */
@@ -346,6 +398,12 @@ abstract class PoetryExtension @Inject constructor(objects: ObjectFactory, proje
 	val release = objects.property<Boolean>().convention(false)
 
 	/**
+	 * Global pyproject.toml file.
+	 * @see [PoetryInitPyProjectTaskExtension.pyprojectFile] and [PoetryVersionTaskExtension.pyprojectFile] and [PoetryUpdateTaskExtension.pyprojectFile]
+	 */
+	val pyprojectFile = objects.fileProperty().convention(project.layout.projectDirectory.file("pyproject.toml"))
+
+	/**
 	 * [com.crow.gradle.plugins.poetry.tasks.init.PoetryConfigInitTask]
 	 * specific configuration.
 	 */
@@ -386,6 +444,20 @@ abstract class PoetryExtension @Inject constructor(objects: ObjectFactory, proje
 	@get:Nested
 	abstract val poetryIdeaSyncTask: PoetryIdeaSyncTaskExtension
 
+	/**
+	 * [com.crow.gradle.plugins.poetry.tasks.PoetryVersionTask]
+	 * specific configuration.
+	 */
+	@get:Nested
+	abstract val poetryVersionTask: PoetryVersionTaskExtension
+
+	/**
+	 * [com.crow.gradle.plugins.poetry.tasks.PoetryUpdateTask]
+	 * specific configuration.
+	 */
+	@get:Nested
+	abstract val poetryUpdateTask: PoetryUpdateTaskExtension
+
 	fun poetryConfigInitTask(action: Action<in PoetryConfigInitTaskExtension>) {
 		action.execute(poetryConfigInitTask)
 	}
@@ -408,5 +480,13 @@ abstract class PoetryExtension @Inject constructor(objects: ObjectFactory, proje
 
 	fun poetryIdeaSyncTask(action: Action<in PoetryIdeaSyncTaskExtension>) {
 		action.execute(poetryIdeaSyncTask)
+	}
+
+	fun poetryVersionTask(action: Action<in PoetryVersionTaskExtension>) {
+		action.execute(poetryVersionTask)
+	}
+
+	fun poetryUpdateTask(action: Action<in PoetryUpdateTaskExtension>) {
+		action.execute(poetryUpdateTask)
 	}
 }

@@ -1,8 +1,11 @@
 package com.crow.gradle.plugins.poetry.tasks
 
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
 /**
@@ -15,6 +18,18 @@ abstract class PoetryUpdateTask : PoetryBaseTask() {
 	 */
 	@get:[Input Optional]
 	abstract val release: Property<Boolean>
+
+	/**
+	 * Input pyproject.toml file.
+	 */
+	@get:InputFile
+	abstract val pyprojectFile: RegularFileProperty
+
+	/**
+	 * Output poetry.lock file.
+	 */
+	@get:OutputFile
+	abstract val poetryLockFile: RegularFileProperty
 
 	@TaskAction
 	fun execute() {
