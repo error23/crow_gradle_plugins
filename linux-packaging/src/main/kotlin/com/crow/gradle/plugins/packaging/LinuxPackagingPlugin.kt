@@ -17,10 +17,13 @@ import com.crow.gradle.plugins.packaging.tasks.ProcessResourcesTask
 import com.crow.gradle.plugins.packaging.tasks.ProcessSharedSourcesTask
 import com.github.dockerjava.api.model.Frame
 import com.github.dockerjava.api.model.StreamType
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.create
+import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.support.uppercaseFirstChar
 
@@ -47,6 +50,10 @@ class LinuxPackagingPlugin : Plugin<Project> {
 		// Create linux packaging extension
 		val extension = project.extensions.create<LinuxPackagingExtension>("linuxPackagingConfig")
 		setupExtension(extension)
+
+		// Setup project version variables
+		project.extra["linuxPackageVersion"] = computeLinuxPackageVersion(project.version.toString())
+		project.extra["linuxPackageVersionRelease"] = computeReleaseVersion(project.version.toString())
 
 		// Register tasks
 		project.tasks.register<LinuxPackagingInitTask>("linuxPackagingInit") {
@@ -294,4 +301,40 @@ class LinuxPackagingPlugin : Plugin<Project> {
 		extension.processDistributionSourcesTask.filterProperties.convention(extension.filterProperties)
 		extension.processArtifactsTask.filterProperties.convention(extension.filterProperties)
 	}
+
+	companion object {
+
+		/**
+		 * Compute release version. <br/> If the version ends with -SNAPSHOT, then
+		 * the release version is SNAPSHOT.yyyyMMddHHmm.
+		 *
+		 * @param version to compute release version for
+		 * @return linux package release version
+		 */
+		@JvmStatic
+		fun computeReleaseVersion(version: String): String {
+			if (version.endsWith("-SNAPSHOT")) {
+				return "SNAPSHOT.${LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmm"))}"
+			}
+
+			return "1"
+		}
+
+		/**
+		 * Compute linux package version. <br/> If the version ends with -SNAPSHOT,
+		 * then the linux package version is the version without the -SNAPSHOT.
+		 *
+		 * @param version to compute linux package version for
+		 * @return linux package version
+		 */
+		@JvmStatic
+		fun computeLinuxPackageVersion(version: String): String {
+			if (version.endsWith("-SNAPSHOT")) {
+				return version.substringBefore("-SNAPSHOT")
+			}
+
+			return version
+		}
+	}
+
 }
